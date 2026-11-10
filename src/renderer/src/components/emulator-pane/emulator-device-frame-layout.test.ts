@@ -7,6 +7,17 @@ import {
 
 describe('resolveVisualStreamGeometry', () => {
   it.each([
+    { width: 1920, height: 1080 },
+    { width: 1080, height: 1920 }
+  ])('keeps an upright scrcpy $width x $height frame unrotated', ({ width, height }) => {
+    expect(resolveVisualStreamGeometry({ width, height }, 'portrait', 'upright')).toEqual({
+      size: { width, height },
+      aspectRatio: width / height,
+      streamRotation: 0
+    })
+  })
+
+  it.each([
     { orientation: 'portrait', rotation: 0, width: 2007, height: 2853 },
     { orientation: 'landscape_left', rotation: 90, width: 2853, height: 2007 },
     { orientation: 'landscape_right', rotation: -90, width: 2853, height: 2007 },

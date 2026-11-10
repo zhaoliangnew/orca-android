@@ -95,9 +95,10 @@ export function EmulatorDeviceFrame({
   const scrcpyDeviceId = scrcpyDeviceIdFromStreamUrl(previewUrl)
   const controlStream = useEmulatorControlStream(wsUrl, canInteract, scrcpyDeviceId)
   const { reportedOrientation, sendTouch } = controlStream
+  const streamOrientation = scrcpyDeviceId ? 'upright' : reportedOrientation
   const visualStreamGeometry = useMemo(
-    () => resolveVisualStreamGeometry(streamSize, visualOrientation, reportedOrientation),
-    [reportedOrientation, streamSize, visualOrientation]
+    () => resolveVisualStreamGeometry(streamSize, visualOrientation, streamOrientation),
+    [streamOrientation, streamSize, visualOrientation]
   )
   // serve-sim takes touches in raw panel coordinates, so input undoes the picture's turn.
   const inputRotation = scrcpyDeviceId ? 0 : visualStreamGeometry.streamRotation

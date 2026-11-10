@@ -64,8 +64,17 @@ export function resolveVisualScreenAspectRatio(
 export function resolveVisualStreamGeometry(
   streamSize: StreamSize | null,
   visualOrientation: EmulatorDeviceVisualOrientation,
-  reportedOrientation?: EmulatorStreamOrientation | null
+  reportedOrientation?: EmulatorStreamOrientation | 'upright' | null
 ): VisualStreamGeometry {
+  // leniu: scrcpy streams upright pixels in the display's current orientation, so Android frames
+  // keep their own shape; the portrait fallback below would turn fixed-landscape devices 90°.
+  if (streamSize && reportedOrientation === 'upright') {
+    return {
+      aspectRatio: streamSize.width / streamSize.height,
+      size: streamSize,
+      streamRotation: 0
+    }
+  }
   if (streamSize && reportedOrientation) {
     const { width, height } = streamSize
     // Landscape-sized frames already carry upright pixels, matching serve-sim's own preview.
