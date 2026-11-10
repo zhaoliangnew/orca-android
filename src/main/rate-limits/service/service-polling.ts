@@ -12,6 +12,8 @@ import {
 } from './service-types'
 import type { ProviderRateLimits } from '../../../shared/rate-limit-types'
 
+const LENIU_MANUAL_USAGE_REFRESH_ONLY = true
+
 export abstract class RateLimitServicePolling extends RateLimitServiceFetchQueue {
   setPollingInterval(ms: number): void {
     this.pollInterval = normalizePollingInterval(ms)
@@ -54,6 +56,10 @@ export abstract class RateLimitServicePolling extends RateLimitServiceFetchQueue
   }
 
   protected shouldBackgroundPoll(): boolean {
+    // leniu: usage refreshes only via the manual refresh button; timer, startup and focus polls stay off.
+    if (LENIU_MANUAL_USAGE_REFRESH_ONLY) {
+      return false
+    }
     // Poll only while someone watches: a paired client's stream, or the focused desktop window.
     if (this.usageViewers > 0) {
       return true
