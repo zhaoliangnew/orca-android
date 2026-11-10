@@ -2,6 +2,7 @@
 import { getClaudeAgentViewService } from '../../claude/agent-view/agent-view-service'
 import type { Store } from '../../persistence/loading-store/store'
 import { RateLimitService } from '../../rate-limits/service/rate-limit-service'
+import { refreshUnlessManualOnly } from '../../rate-limits/leniu-manual-usage-refresh'
 import { CodexRuntimeHomeService } from '../../codex-accounts/runtime-home-service'
 import { CodexAccountService } from '../../codex-accounts/service'
 import { ClaudeRuntimeAuthService } from '../../claude-accounts/runtime-auth-service'
@@ -75,7 +76,7 @@ export function createProviderAccountServices(
     )
     if ('opencodeSessionCookie' in updates || 'opencodeWorkspaceId' in updates) {
       rateLimits.invalidateOpenCodeGoCredentialState()
-      void rateLimits.refresh().catch((error: unknown) => {
+      void refreshUnlessManualOnly(rateLimits).catch((error: unknown) => {
         console.warn(
           '[rate-limits] Failed to refresh OpenCode Go usage after a settings change:',
           error
@@ -89,7 +90,7 @@ export function createProviderAccountServices(
       'minimaxUsageModels' in updates
     ) {
       rateLimits.invalidateMiniMaxCredentialState()
-      void rateLimits.refresh().catch((error: unknown) => {
+      void refreshUnlessManualOnly(rateLimits).catch((error: unknown) => {
         console.warn(
           '[rate-limits] Failed to refresh MiniMax usage after a settings change:',
           error
@@ -99,7 +100,7 @@ export function createProviderAccountServices(
     // Clear quota data from the old GLM Coding Plan site before the next poll.
     if ('zcodePlanSite' in updates) {
       rateLimits.invalidateZcodeCredentialState()
-      void rateLimits.refresh().catch((error: unknown) => {
+      void refreshUnlessManualOnly(rateLimits).catch((error: unknown) => {
         console.warn(
           '[rate-limits] Failed to refresh GLM Coding Plan usage after a settings change:',
           error

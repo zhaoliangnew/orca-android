@@ -1,4 +1,5 @@
 import type { RateLimitService } from '../rate-limits/service/rate-limit-service'
+import { refreshUnlessManualOnly } from '../rate-limits/leniu-manual-usage-refresh'
 
 /** Refresh usage in the background so callers can return persisted credential status even if refresh fails. */
 export function refreshAfterCredentialChange<T extends Pick<RateLimitService, 'refresh'>>(
@@ -10,7 +11,7 @@ export function refreshAfterCredentialChange<T extends Pick<RateLimitService, 'r
     return
   }
   invalidate(rateLimits)
-  void rateLimits.refresh().catch((error: unknown) => {
+  void refreshUnlessManualOnly(rateLimits).catch((error: unknown) => {
     console.error(failureLogMessage, error)
   })
 }

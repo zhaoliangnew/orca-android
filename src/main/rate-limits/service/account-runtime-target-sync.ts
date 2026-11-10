@@ -1,6 +1,7 @@
 import type { GlobalSettings } from '../../../shared/global-settings-types'
 import type { RateLimitState } from '../../../shared/rate-limit-types'
 import type { RateLimitService } from './rate-limit-service'
+import { refreshUnlessManualOnly } from '../leniu-manual-usage-refresh'
 import { getInitialClaudeRateLimitTarget } from '../providers/claude/claude-rate-limit-target'
 import { getInitialCodexRateLimitTarget } from '../providers/codex/codex-rate-limit-target'
 import {
@@ -60,7 +61,7 @@ export function createAccountRuntimeTargetSettingsSync(
     await Promise.all(refreshes)
     // Antigravity has no targeted refresh; queueing a full one beside targeted ones can drop their reruns.
     if (usageTargetChanged) {
-      await rateLimits.refresh()
+      await refreshUnlessManualOnly(rateLimits)
     }
   }
 }

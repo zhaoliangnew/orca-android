@@ -136,9 +136,9 @@ const ACCOUNT_METHOD_DEFINITIONS = [
     name: 'accounts.list',
     permission: 'workspace',
     params: ListAccountsParams,
-    handler: async (params, { runtime }) => {
-      // Refresh before replying: unfocused desktop polling and unopened account caches can leave mobile usage stale.
-      if (params.refreshUsage) {
+    handler: async (params, { runtime, caller }) => {
+      // leniu: paired phones get the cached snapshot; usage refreshes only from this desktop.
+      if (params.refreshUsage && caller?.kind !== 'paired-device') {
         await runtime.refreshAccountsForMobile()
       } else if (params.refreshStaleUsage) {
         // Slow inactive-account probes keep running; the caller gets what settled in time.
@@ -285,9 +285,8 @@ const ACCOUNT_METHOD_DEFINITIONS = [
           release()
         } else {
           signal?.addEventListener('abort', release, { once: true })
-          // Publish a snapshot immediately, then refresh stale data; reconnect must not force repeated provider fetches.
+          // leniu: publish the cached snapshot only; usage refreshes on the phone's pull-to-refresh or desktop button.
           emit({ type: 'ready', subscriptionId, snapshot: runtime.getAccountsStreamSnapshot() })
-          void runtime.refreshAccountsForMobileSubscriber()
         }
         await stopped.promise
         emit({ type: 'end' })

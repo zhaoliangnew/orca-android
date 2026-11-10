@@ -3,10 +3,14 @@ import { fetchCodexRateLimits } from '../providers/codex/codex-fetcher'
 import { RateLimitServicePolling } from './service-polling'
 import { INACTIVE_CODEX_PROBE_STAGGER_MS, INACTIVE_FETCH_DEBOUNCE_MS } from './service-types'
 import { delayUnlessAborted } from '../../../shared/abort-aware-delay'
+import { LENIU_MANUAL_USAGE_REFRESH_ONLY } from '../leniu-manual-usage-refresh'
 
 export abstract class RateLimitServiceInactiveAccounts extends RateLimitServicePolling {
   async fetchInactiveClaudeAccountsOnOpen(): Promise<void> {
-    if (Date.now() - this.lastInactiveClaudeFetchAt < INACTIVE_FETCH_DEBOUNCE_MS) {
+    if (
+      LENIU_MANUAL_USAGE_REFRESH_ONLY ||
+      Date.now() - this.lastInactiveClaudeFetchAt < INACTIVE_FETCH_DEBOUNCE_MS
+    ) {
       return
     }
     this.pruneInactiveClaudeState()
@@ -85,7 +89,10 @@ export abstract class RateLimitServiceInactiveAccounts extends RateLimitServiceP
   }
 
   async fetchInactiveCodexAccountsOnOpen(): Promise<void> {
-    if (Date.now() - this.lastInactiveCodexFetchAt < INACTIVE_FETCH_DEBOUNCE_MS) {
+    if (
+      LENIU_MANUAL_USAGE_REFRESH_ONLY ||
+      Date.now() - this.lastInactiveCodexFetchAt < INACTIVE_FETCH_DEBOUNCE_MS
+    ) {
       return
     }
     this.pruneInactiveCodexState()

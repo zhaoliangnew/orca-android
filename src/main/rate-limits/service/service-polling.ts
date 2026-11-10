@@ -11,8 +11,7 @@ import {
   type ActiveWindowRefreshPlan
 } from './service-types'
 import type { ProviderRateLimits } from '../../../shared/rate-limit-types'
-
-const LENIU_MANUAL_USAGE_REFRESH_ONLY = true
+import { LENIU_MANUAL_USAGE_REFRESH_ONLY } from '../leniu-manual-usage-refresh'
 
 export abstract class RateLimitServicePolling extends RateLimitServiceFetchQueue {
   setPollingInterval(ms: number): void {
@@ -56,7 +55,6 @@ export abstract class RateLimitServicePolling extends RateLimitServiceFetchQueue
   }
 
   protected shouldBackgroundPoll(): boolean {
-    // leniu: usage refreshes only via the manual refresh button; timer, startup and focus polls stay off.
     if (LENIU_MANUAL_USAGE_REFRESH_ONLY) {
       return false
     }
