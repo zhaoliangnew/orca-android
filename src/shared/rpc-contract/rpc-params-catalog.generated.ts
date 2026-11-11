@@ -847,6 +847,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentSession.item': ItemParams,
   'agentSession.modelCatalog': ModelCatalogParams,
   'agentSession.options': OptionsParams,
+  'agentSession.promptSuggestion': OptionsParams,
   'agentSession.queuedMessageDelete': QueuedMessageActionParams,
   'agentSession.queuedMessageEditHold': QueuedMessageEditHoldParams,
   'agentSession.queuedMessageMove': QueuedMessageMoveParams,

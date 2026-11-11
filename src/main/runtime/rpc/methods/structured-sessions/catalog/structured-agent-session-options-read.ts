@@ -54,6 +54,16 @@ export const STRUCTURED_AGENT_SESSION_OPTIONS_READ_METHODS = [
       )
   }),
   defineMethod({
+    // leniu: Claude's predicted next prompt for the composer's ghost text; null when none.
+    name: 'agentSession.promptSuggestion',
+    permission: 'workspace',
+    params: OptionsParams,
+    handler: async (params, ctx) => {
+      const host = await requireInstalledStructuredHost(ctx, params.sessionId)
+      return host.deps.adapter.readPromptSuggestion?.(params.sessionId) ?? null
+    }
+  }),
+  defineMethod({
     name: 'agentSession.options',
     permission: 'workspace',
     params: OptionsParams,

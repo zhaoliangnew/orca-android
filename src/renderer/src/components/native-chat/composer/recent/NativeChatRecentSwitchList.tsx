@@ -6,12 +6,28 @@ import { cn } from '@/lib/utils'
 import { getWorktreeStatusLabel, type WorktreeStatus } from '@/lib/worktree-status'
 import { jumpToWorktreeFromSidebar } from '@/lib/workspace/activation/worktree-jump-navigation'
 import { selectWorktreeActivityStatuses } from '@/components/sidebar/workspace-card/activity/use-worktree-activity-statuses'
-import { formatOverviewVisit } from '../../../project-overview/project-overview-layout'
 import { buildRecentSwitchRows, type RecentSwitchRow } from './recent-switch-rows'
 import { NativeChatQuickPromptsMenu } from '../quick-prompts/NativeChatQuickPromptsMenu'
 
 const DEFAULT_RECENT_COUNT = 5
-const ROW_HEIGHT_PX = 22
+
+/** Short like the device-side history: N 分钟前 / N 小时前 today, otherwise M-D. */
+function formatRecentVisit(at: number | undefined, now = Date.now()): string {
+  if (!at) {
+    return ''
+  }
+  const minutes = Math.floor((now - at) / 60_000)
+  const date = new Date(at)
+  if (date.toDateString() !== new Date(now).toDateString()) {
+    return `${date.getMonth() + 1}-${date.getDate()}`
+  }
+  return minutes < 1
+    ? '刚刚'
+    : minutes < 60
+      ? `${minutes} 分钟前`
+      : `${Math.floor(minutes / 60)} 小时前`
+}
+const ROW_HEIGHT_PX = 26
 const ROW_GRID =
   'grid grid-cols-[52px_minmax(0,0.8fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_76px] items-center gap-2'
 const STATUS_CLASS: Partial<Record<WorktreeStatus, string>> = {
@@ -27,14 +43,14 @@ function SwitchRowCells({ row, trailing }: { row: RecentSwitchRow; trailing: Rea
   return (
     <>
       <span className={cn('truncate', row.current && 'font-medium text-primary')}>
-        {row.current ? t('recentSwitch.current', 'Current') : formatOverviewVisit(row.visitedAt)}
+        {row.current ? t('recentSwitch.current', 'Current') : formatRecentVisit(row.visitedAt)}
       </span>
-      <span className="truncate">{row.group}</span>
+      <span className="truncate text-right">{row.group}</span>
       <span className="flex min-w-0 items-baseline gap-1.5">
         <span className="truncate font-medium text-chat-foreground">
           {row.alias ?? row.product}
         </span>
-        {row.alias && <span className="truncate text-3xs">{row.product}</span>}
+        {row.alias && <span className="truncate text-xs">{row.product}</span>}
       </span>
       <span className="flex min-w-0 items-center gap-1.5">
         <span className="shrink-0 rounded bg-foreground/10 px-1 text-3xs leading-3.5">
@@ -47,7 +63,7 @@ function SwitchRowCells({ row, trailing }: { row: RecentSwitchRow; trailing: Rea
   )
 }
 
-const ROW_CLASS = 'h-5 shrink-0 rounded-md px-2 text-left text-3xs text-chat-foreground-faint'
+const ROW_CLASS = 'h-6 shrink-0 rounded-md px-2 text-left text-sm text-chat-foreground-faint'
 
 // The current row hosts the 快捷指令 menu, so it is a plain container rather than a button.
 function CurrentRow({ row }: { row: RecentSwitchRow }) {
@@ -65,7 +81,7 @@ function CurrentRow({ row }: { row: RecentSwitchRow }) {
   )
 }
 
-function RecentRow({ row, status }: { row: RecentSwitchRow; status: WorktreeStatus }) {
+export function RecentRow({ row, status }: { row: RecentSwitchRow; status: WorktreeStatus }) {
   return (
     <button
       type="button"
@@ -86,12 +102,12 @@ function RecentRow({ row, status }: { row: RecentSwitchRow; status: WorktreeStat
   )
 }
 
-/**
- * leniu: quick switching shared by every chat tab. The current row is ordered above the input box;
- * the recent list keeps a fixed height so switching never moves the composer.
- */
-export function NativeChatRecentSwitchList() {
-  const count = useAppStore((s) => s.settings?.recentSwitchCount ?? DEFAULT_RECENT_COUNT)
+/** Rows for the current workspace and the most recently visited ones, with their activity. */
+export function useRecentSwitchRows(count: number): {
+  current: RecentSwitchRow | null
+  recent: RecentSwitchRow[]
+  recentStatuses: WorktreeStatus[]
+} {
   const lastVisited = useAppStore((s) => s.lastVisitedAtByWorktreeId)
   const activeWorktreeId = useAppStore((s) => s.activeWorktreeId)
   const repos = useAppStore((s) => s.repos)
@@ -103,17 +119,25 @@ export function NativeChatRecentSwitchList() {
     // oxlint-disable-next-line react-hooks/exhaustive-deps
     [count, lastVisited, activeWorktreeId, repos, worktreesByRepo, aliases]
   )
-  const rows = current ? [current, ...recent] : recent
-  const statuses = useAppStore(
+  const recentStatuses = useAppStore(
     useShallow((state) => {
       const byId = selectWorktreeActivityStatuses(
         state,
-        rows.map((row) => row.worktree.id)
+        recent.map((row) => row.worktree.id)
       )
-      return rows.map((row) => byId.get(row.worktree.id) ?? 'inactive')
+      return recent.map((row) => byId.get(row.worktree.id) ?? 'inactive')
     })
   )
-  const offset = current ? 1 : 0
+  return { current: current ?? null, recent, recentStatuses }
+}
+
+/**
+ * leniu: quick switching shared by every chat tab. The current row is ordered above the input box;
+ * the recent list reserves only the rows it has; once full (5), switching keeps the composer still.
+ */
+export function NativeChatRecentSwitchList() {
+  const count = useAppStore((s) => s.settings?.recentSwitchCount ?? DEFAULT_RECENT_COUNT)
+  const { current, recent, recentStatuses } = useRecentSwitchRows(count)
   return (
     <>
       {current && (
@@ -121,11 +145,16 @@ export function NativeChatRecentSwitchList() {
           <CurrentRow row={current} />
         </div>
       )}
-      <div className="mt-1.5 flex flex-col gap-0.5 px-1" style={{ height: count * ROW_HEIGHT_PX }}>
-        {recent.map((row, index) => (
-          <RecentRow key={row.worktree.id} row={row} status={statuses[index + offset]} />
-        ))}
-      </div>
+      {recent.length > 0 && (
+        <div
+          className="mt-1.5 flex flex-col gap-0.5 px-1"
+          style={{ height: recent.length * ROW_HEIGHT_PX }}
+        >
+          {recent.map((row, index) => (
+            <RecentRow key={row.worktree.id} row={row} status={recentStatuses[index]} />
+          ))}
+        </div>
+      )}
     </>
   )
 }

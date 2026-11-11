@@ -140,7 +140,8 @@ function applyTerminalChatColors(
     '--chat-inline-code-mix': light ? '4%' : '6%',
     '--chat-inline-code-base': light ? 'var(--chat-canvas)' : 'transparent',
     '--chat-inline-code-border-mix': light ? '9%' : '8%',
-    '--chat-composer-mix': light ? '0%' : '4%',
+    // leniu: a lighter dark-mode composer, matching Android Dev's 12% foreground wash.
+    '--chat-composer-mix': light ? '0%' : '12%',
     '--chat-composer-base': light ? 'var(--chat-canvas)' : 'transparent',
     '--chat-composer-border-mix': light ? '11%' : '9%'
   })

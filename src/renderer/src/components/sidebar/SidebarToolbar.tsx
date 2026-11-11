@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { ScrollToCurrentWorkspaceToolbarButton } from './worktree-list/navigation/ScrollToCurrentWorkspaceToolbarButton'
 import { SidebarSettingsHelpMenu } from './SidebarSettingsHelpMenu'
-import { SidebarUsageRefreshButton } from './SidebarUsageRefreshButton'
 import { useTranslate } from '@/i18n/use-translate'
 import { useAppStore } from '@/store'
 import { hasFeatureInteraction } from '../../../../shared/feature-interactions'
@@ -106,7 +105,6 @@ const SidebarToolbar = React.memo(function SidebarToolbar({
                   : t('auto.components.sidebar.SidebarToolbar.49f62c5665', 'Workspace board')}
             </TooltipContent>
           </Tooltip>
-          <SidebarUsageRefreshButton />
         </div>
       </div>
     </div>

@@ -21,6 +21,7 @@ import type {
 import { ClaudeBackgroundTaskTracker } from '../claude-background-task-tracker'
 import { ClaudeChildWorkDecoder } from '../claude-child-work-decoder'
 import { ClaudeSlashCommandCatalog } from '../claude-slash-command-catalog'
+import { ClaudePromptSuggestionTracker } from '../claude-prompt-suggestion'
 import type { ClaudeStructuredLaunch } from './launch/claude-structured-launch-resolution'
 import type { ClaudeAcquisitionLaunch } from './launch/claude-structured-acquisition-launch'
 import type { ClaudeNamingGeneration } from '../claude-naming-generation'
@@ -134,6 +135,7 @@ export function createClaudeSessionPublication(input: {
       childWork: new ClaudeChildWorkDecoder(input.translator?.taskInvocations),
       // An unread catalog is unavailable, not empty.
       commands: new ClaudeSlashCommandCatalog(),
+      promptSuggestion: new ClaudePromptSuggestionTracker(),
       dispatchSequence: 0,
       optionMutationSequence: 0,
       options: new Map(input.launch.savedOptions.options),

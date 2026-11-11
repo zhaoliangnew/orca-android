@@ -73,6 +73,7 @@ export type ClaudeStructuredSdkOptions = Pick<
   | 'resume'
   | 'resumeSessionAt'
   | 'forkSession'
+  | 'promptSuggestions'
 > &
   ClaudePermissionOptions
 
@@ -83,6 +84,8 @@ export const CLAUDE_STRUCTURED_BASE_OPTIONS: ClaudeStructuredSdkOptions = {
   systemPrompt: { type: 'preset', preset: 'claude_code' },
   settingSources: [...CLAUDE_DEFAULT_SETTING_SOURCES],
   supportedDialogKinds: [],
+  // leniu: predicted next prompts, shown as ghost text in the composer (Tab accepts).
+  promptSuggestions: true,
   extraArgs: { 'replay-user-messages': null }
 }
 

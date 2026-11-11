@@ -289,6 +289,8 @@ export type StructuredAgentSessionAdapter = StructuredAgentSessionAdapterStop & 
   retireStartup?(sessionId: string, acquisitionGeneration: string): void
   /** Undefined preserves the client catalog when the provider reports none. */
   readCommands?(sessionId: string): AgentSessionSlashCommand[] | undefined
+  /** leniu: provider-predicted next prompt for the composer's ghost text. */
+  readPromptSuggestion?(sessionId: string): string | null
   atRestCommands?: StructuredAgentSessionAtRestCommands
   /** Claim the live callback, build reply, commit journal CAS, then answer; reject unbuildable replies before commit. */
   answerPrompt(input: {

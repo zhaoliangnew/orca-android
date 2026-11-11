@@ -19,7 +19,7 @@ import {
 import { NativeChatSessionOptionPickers } from '../../session/options/controls/NativeChatSessionOptionPickers'
 import { NativeChatComposerPermissionPicker } from '../../session/options/controls/NativeChatPermissionModePicker'
 import { NativeChatComposerGoalChip } from './NativeChatComposerGoalChip'
-import { NativeChatContextUsageRing } from '../../usage/NativeChatContextUsageRing'
+import { NativeChatComposerLeniuTools } from './NativeChatComposerLeniuTools'
 import type { NativeChatContextUsageSummary } from '../../../../../../shared/native-chat/native-chat-context-usage-summary'
 import type { NativeChatOptionPickerRequest } from '../../session/options/controls/native-chat-option-picker-request'
 import type { NativeChatSteerChordPreview } from '../../../../../../shared/native-chat/input/use-native-chat-steer-chord-preview'
@@ -293,6 +293,18 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
   ]
   const right: NativeChatComposerControl[] = [
     {
+      // leniu: 最近/用量/压缩/新会话, with the context ring beside 压缩.
+      id: 'leniu-tools',
+      priority: 1,
+      content: (
+        <NativeChatComposerLeniuTools
+          agent={agent}
+          contextUsage={contextUsage}
+          isWorking={isWorking}
+        />
+      )
+    },
+    {
       id: 'model',
       content: (
         <NativeChatSessionOptionPickers
@@ -304,15 +316,6 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
         />
       )
     },
-    ...(contextUsage
-      ? [
-          {
-            id: 'context',
-            priority: 0,
-            content: <NativeChatContextUsageRing usage={contextUsage} />
-          }
-        ]
-      : []),
     { id: 'dictation', priority: 2, content: dictation },
     ...(draftNotSaved
       ? [{ id: 'draft', priority: 1, content: <NativeChatComposerDraftNotSavedIcon shown /> }]

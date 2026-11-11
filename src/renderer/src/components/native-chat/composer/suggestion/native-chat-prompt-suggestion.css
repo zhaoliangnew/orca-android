@@ -1,0 +1,6 @@
+/* leniu: Claude's predicted next prompt replaces the empty composer's placeholder (Tab accepts). */
+[data-leniu-prompt-suggestion]
+  [data-native-chat-prompt-editor]
+  p.is-editor-empty:first-child::before {
+  content: var(--leniu-prompt-suggestion);
+}

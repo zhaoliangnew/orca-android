@@ -153,6 +153,11 @@ export function nativeChatSessionOptionDisabledReason(
   }
 }
 
+// leniu: the pill shows just the model ("Opus 5.5"), without the "Claude " brand or " alias" tag.
+function compactModelLabel(label: string): string {
+  return label.replace(/^Claude /, '').replace(/ alias$/, '')
+}
+
 export function nativeChatModelPillLabel(
   descriptor: SessionOptionDescriptor,
   say: NativeChatSessionOptionSay
@@ -162,7 +167,7 @@ export function nativeChatModelPillLabel(
   const selected = choice ? nativeChatSessionChoiceLabel(choice, say) : say('model')
   const reported = descriptor.reportedModel
   if (!reported || (choice && reported === choice.value.replace(/\[[^\]]*\]$/u, ''))) {
-    return selected
+    return compactModelLabel(selected)
   }
   const reportedChoice =
     descriptor.kind.type === 'select'
@@ -171,8 +176,7 @@ export function nativeChatModelPillLabel(
   const label = reportedChoice
     ? nativeChatSessionChoiceLabel(reportedChoice, say)
     : labelFromModelId(reported)
-  const actual = selected.startsWith('Claude ') ? label : label.replace(/^Claude /, '')
-  return actual
+  return compactModelLabel(label)
 }
 
 export function nativeChatOptionsPillTitle(

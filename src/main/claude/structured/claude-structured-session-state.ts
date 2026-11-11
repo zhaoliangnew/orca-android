@@ -20,6 +20,7 @@ import type { AgentChildWorkEvidence } from '../../../shared/agent-status/child-
 import type { ClaudeBackgroundTaskTracker } from '../claude-background-task-tracker'
 import type { ClaudeChildWorkDecoder } from '../claude-child-work-decoder'
 import type { ClaudeSlashCommandCatalog } from '../claude-slash-command-catalog'
+import type { ClaudePromptSuggestionTracker } from '../claude-prompt-suggestion'
 import type { ClaudeAtRestCommandCatalog } from '../claude-at-rest-commands'
 import type { ClaudeInitProof } from './claude-structured-init-proof'
 import type { AgentSessionProviderHandleLink } from '../../../shared/agent-session/lifecycle/agent-session-provider-handle'
@@ -158,6 +159,8 @@ export type ClaudeSession = {
   childWork: ClaudeChildWorkDecoder
   /** Commands seeded by init and updated by later init or commands_changed frames. */
   commands: ClaudeSlashCommandCatalog
+  /** leniu: latest predicted next prompt; cleared when a turn starts. */
+  promptSuggestion?: ClaudePromptSuggestionTracker
   /** Monotonic fence advanced when a dispatch starts, including unresolved dispatches. */
   dispatchSequence: number
   /** Fences overlapping option writes so a late completion cannot restore stale state. */

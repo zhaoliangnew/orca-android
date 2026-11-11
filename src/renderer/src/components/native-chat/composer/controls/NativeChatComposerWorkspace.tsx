@@ -1,4 +1,6 @@
+import { NativeChatPromptSuggestion } from '../suggestion/NativeChatPromptSuggestion'
 import { NativeChatRecentSwitchList } from '../recent/NativeChatRecentSwitchList'
+import { NativeChatLeniuToolsSource } from './NativeChatComposerLeniuTools'
 import { useMemo } from 'react'
 import { Folder, GitBranch, GitCommitHorizontal, Server } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
@@ -26,7 +28,10 @@ export function NativeChatComposerWorkspace({
   isWorking = false
 }: {
   terminalTabId: string
-  structuredTransport?: NativeChatComposerWorkspaceTarget
+  structuredTransport?: NativeChatComposerWorkspaceTarget & {
+    sessionId?: string
+    dispatchCommand?: (text: string) => unknown
+  }
   isWorking?: boolean
 }): React.JSX.Element {
   const t = useTranslate()
@@ -118,7 +123,8 @@ export function NativeChatComposerWorkspace({
 
   return (
     <>
-      <div className="@container mt-1 flex h-5.5 shrink-0 min-w-0 items-center gap-1.5 px-3 text-2xs text-chat-foreground-faint">
+      {/* leniu: hidden; the 当前 row above the input already names this workspace and branch. */}
+      <div className="@container mt-1 hidden h-5.5 shrink-0 min-w-0 items-center gap-1.5 px-3 text-2xs text-chat-foreground-faint">
         {hostId && (
           <span
             className={
@@ -191,6 +197,19 @@ export function NativeChatComposerWorkspace({
         )}
       </div>
       <NativeChatRecentSwitchList />
+      {structuredTransport ? (
+        <NativeChatLeniuToolsSource
+          dispatchCommand={structuredTransport.dispatchCommand}
+          worktreeId={structuredTransport.worktreeId}
+        />
+      ) : null}
+      {structuredTransport?.sessionId ? (
+        <NativeChatPromptSuggestion
+          sessionId={structuredTransport.sessionId}
+          runtimeEnvironmentId={structuredTransport.runtimeEnvironmentId ?? null}
+          isWorking={isWorking}
+        />
+      ) : null}
     </>
   )
 }
