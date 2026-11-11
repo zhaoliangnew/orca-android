@@ -35,8 +35,11 @@ import { useMobileTasksPickerProjection } from './use-mobile-tasks-picker-projec
 import { useMobileTasksProviderViewProjection } from './use-mobile-tasks-provider-view-projection'
 import { useMobileTasksConnectionPresentation } from './use-mobile-tasks-connection-presentation'
 import { MobileTasksLegacySurface } from './MobileTasksLegacySurface'
+import { MobileYunxiaoScreen } from './yunxiao/MobileYunxiaoScreen'
+import { useMobileYunxiaoOpen } from './yunxiao/mobile-yunxiao-mode'
 
 export function MobileTasksScreen() {
+  const yunxiaoOpen = useMobileYunxiaoOpen()
   const stage1 = useMobileTasksRouteAndItemState()
   const stage2 = useMobileTasksWorkspaceAndProjectState(stage1)
   const stage3 = useMobileTasksProjectProjection(stage2)
@@ -73,5 +76,8 @@ export function MobileTasksScreen() {
   const stage34 = useMobileTasksPickerProjection(stage33)
   const stage35 = useMobileTasksProviderViewProjection(stage34)
   const stage36 = useMobileTasksConnectionPresentation(stage35)
-  return MobileTasksLegacySurface({ model: stage36 })
+  // Called as a function, the surface's hooks belong to this screen: always run them.
+  const surface = MobileTasksLegacySurface({ model: stage36 })
+  // leniu: 云效 replaces the provider list while open.
+  return yunxiaoOpen ? <MobileYunxiaoScreen hostId={stage36.hostId} /> : surface
 }

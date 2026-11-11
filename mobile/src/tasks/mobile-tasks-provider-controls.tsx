@@ -7,6 +7,16 @@ import { renderMobileTasksGitHubViewControls } from './mobile-tasks-github-view-
 import { renderMobileTasksLinearViewControls } from './mobile-tasks-linear-view-controls'
 import { renderMobileTasksJiraViewControls } from './mobile-tasks-jira-view-controls'
 import { mobileTasksFilterCount } from './mobile-tasks-filter-sheet'
+import { setMobileYunxiaoOpen } from './yunxiao/mobile-yunxiao-mode'
+
+// leniu: 云效 opens its own list; it is not one of the desktop's task providers.
+const yunxiaoChip = (
+  <FilterChip
+    label="云效"
+    accessibilityLabel="打开云效"
+    onPress={() => setMobileYunxiaoOpen(true)}
+  />
+)
 
 /** The scope dropdowns, then the one Filter chip that opens Filter & display. */
 export function renderMobileTasksProviderControls(model: ConnectionPresentationModel) {
@@ -30,7 +40,15 @@ export function renderMobileTasksProviderControls(model: ConnectionPresentationM
     (provider === 'linear' && !linearConnected) ||
     (provider === 'jira' && !jiraConnection.connected)
   ) {
-    return null
+    return (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.toolbar}
+      >
+        {yunxiaoChip}
+      </ScrollView>
+    )
   }
   const filterCount = mobileTasksFilterCount(model)
   const gitlabViewLabel =
@@ -44,6 +62,7 @@ export function renderMobileTasksProviderControls(model: ConnectionPresentationM
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={styles.toolbar}
     >
+      {yunxiaoChip}
       {provider === 'gitlab' || (provider === 'github' && githubMode !== 'project') ? (
         <FilterChip
           label={repoPickerLabel}

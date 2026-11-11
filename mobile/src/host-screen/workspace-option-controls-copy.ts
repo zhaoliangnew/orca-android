@@ -52,7 +52,8 @@ export const projectOrderChoices = (t: Translate) =>
     viewOptions.WORKSPACE_PROJECT_ORDER_CHOICES,
     {
       manual: t('hostScreen.workspaceOptionControls.manual', 'Manual'),
-      recent: t('hostScreen.workspaceOptionControls.recent', 'Recent')
+      recent: t('hostScreen.workspaceOptionControls.recent', 'Recent'),
+      folder: '文件夹顺序'
     },
     {
       manual: t(
@@ -62,7 +63,8 @@ export const projectOrderChoices = (t: Translate) =>
       recent: t(
         'hostScreen.workspaceOptionControls.recentProjectOrderDescription',
         'Most recent workspace activity'
-      )
+      ),
+      folder: '和本地文件夹里的顺序一致'
     }
   )
 
