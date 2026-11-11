@@ -25,18 +25,18 @@ function formatReset(resetsAt: number | null, now: number): string {
 function UsageRow({ label, window, now }: { label: string; window: RateLimitWindow; now: number }) {
   const used = clampUsedPercent(window.usedPercent)
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-baseline justify-between text-xs font-medium text-chat-foreground">
-        <span>{label}</span>
-        <span className="tabular-nums">{Math.round(used)}%</span>
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-baseline justify-between text-sm">
+        <span className="font-medium text-chat-foreground-strong">{label}</span>
+        <span className="tabular-nums text-chat-foreground">{Math.round(used)}%</span>
       </div>
-      <div className="h-1 overflow-hidden rounded-full bg-muted">
+      <div className="h-1.5 overflow-hidden rounded-full bg-foreground/10">
         <div
           className={`h-full rounded-full ${used >= 90 ? 'bg-destructive' : 'bg-blue-500'}`}
           style={{ width: `${used}%` }}
         />
       </div>
-      <span className="text-2xs text-chat-foreground-faint">
+      <span className="text-xs text-chat-foreground-faint">
         {formatReset(window.resetsAt, now)}
       </span>
     </div>
@@ -57,16 +57,18 @@ export function NativeChatUsagePopup({ agent }: { agent?: string }) {
   const now = useResetCountdownClock(rows.map((row) => row.window.resetsAt))
   return (
     <div
-      className={`flex flex-col gap-3 ${limits?.status === 'fetching' ? 'animate-pulse motion-reduce:animate-none' : ''}`}
+      className={`flex flex-col gap-4 ${limits?.status === 'fetching' ? 'animate-pulse motion-reduce:animate-none' : ''}`}
     >
-      <div className="flex items-baseline justify-between text-xs">
-        <span className="font-medium text-chat-foreground">{codex ? 'Codex' : 'Claude'} 用量</span>
+      <div className="flex items-baseline justify-between">
+        <span className="text-sm font-semibold text-chat-foreground-strong">
+          {codex ? 'Codex' : 'Claude'} 用量
+        </span>
         {limits?.planType ? (
-          <span className="text-2xs text-chat-foreground-faint">{limits.planType} 套餐</span>
+          <span className="text-xs text-chat-foreground-faint">{limits.planType} 套餐</span>
         ) : null}
       </div>
       {rows.length === 0 ? (
-        <span className="text-xs text-chat-foreground-faint">暂无用量数据</span>
+        <span className="text-sm text-chat-foreground-faint">暂无用量数据</span>
       ) : (
         rows.map((row) => (
           <UsageRow key={row.label} label={row.label} window={row.window} now={now} />

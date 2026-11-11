@@ -57,10 +57,16 @@ export function buildRecentSwitchRows(
     latestById.set(id, Math.max(at, latestById.get(id) ?? 0))
   }
   const active = state.activeWorktreeId ? findWorktreeById(state, state.activeWorktreeId) : null
+  const hiddenAt = state.settings?.recentSwitchHiddenAt ?? {}
+  const clearedAt = state.settings?.recentSwitchClearedAt ?? 0
   const recent: RecentSwitchRow[] = []
   for (const [id, at] of [...latestById].sort((a, b) => b[1] - a[1])) {
     if (recent.length >= count) {
       break
+    }
+    // Removed or cleared entries return once visited again.
+    if (at <= Math.max(clearedAt, hiddenAt[id] ?? 0)) {
+      continue
     }
     const worktree = id === active?.id ? null : findWorktreeById(state, id)
     if (worktree) {

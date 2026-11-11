@@ -22,6 +22,7 @@ import { WorktreeCardSshHostControl } from '../host/WorktreeCardSshHostControl'
 import { WorktreeHostContextBadge } from '../host/WorktreeHostContextBadge'
 import { WorktreeTitleInlineRename } from '../identity/WorktreeTitleInlineRename'
 import { WorktreeKindTag } from '../identity/WorktreeKindTag'
+import { YunxiaoWorkspaceBadge } from '@/components/yunxiao/YunxiaoWorkspaceBadge'
 import { cardElement } from './card-template-compiler'
 
 type Card = WorktreeCardController
@@ -54,6 +55,7 @@ function title(props: Readonly<Record<string, unknown>>, card: Card): React.Reac
           affiliateListMode ? undefined : () => card.setRenamingWorktreeId(null)
         }
       />
+      {card.isFolder ? null : <YunxiaoWorkspaceBadge worktreeId={worktree.id} />}
     </>
   )
 }

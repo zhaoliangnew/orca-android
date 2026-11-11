@@ -18,6 +18,10 @@ export type LeniuWorkspaceSettings = {
   projectOverviewLayouts?: Record<string, ProjectOverviewColumn[]>
   /** Rows in the recent-switch list under the chat composer (besides the current workspace). */
   recentSwitchCount?: number
+  /** Removed from the recent list at (ms), per worktree id; a later visit brings it back. */
+  recentSwitchHiddenAt?: Record<string, number>
+  /** 清空最近: visits up to this moment (ms) leave the list. */
+  recentSwitchClearedAt?: number
   /** Unset means the built-in defaults; once edited the whole list is stored. */
   quickPrompts?: QuickPrompt[]
 }

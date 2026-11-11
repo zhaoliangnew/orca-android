@@ -11,7 +11,7 @@ import { NativeChatUsagePopup } from './NativeChatUsagePopup'
 import { isTuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent-config'
 import type { NativeChatContextUsageSummary } from '../../../../../../shared/native-chat/native-chat-context-usage-summary'
 import { NativeChatContextUsageRing } from '../../usage/NativeChatContextUsageRing'
-import { RecentRow, useRecentSwitchRows } from '../recent/NativeChatRecentSwitchList'
+import { NativeChatRecentSettings } from '../recent/NativeChatRecentSettings'
 
 export type NativeChatLeniuTools = {
   /** Sends /compact to the session; absent for chats without a structured session. */
@@ -57,7 +57,6 @@ export function NativeChatLeniuToolsSource({
   return <span ref={ref} hidden />
 }
 
-const POPUP_RECENT_COUNT = 10
 // Small text buttons, as in Android Dev's composer bar.
 const TOOL_TEXT =
   'flex h-6 shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap rounded-md px-1.5 text-sm text-chat-foreground-faint transition-colors hover:bg-accent/60 hover:text-chat-foreground disabled:cursor-default disabled:opacity-50'
@@ -99,20 +98,6 @@ function ToolPopover({
   )
 }
 
-function RecentPopup() {
-  const { recent, recentStatuses } = useRecentSwitchRows(POPUP_RECENT_COUNT)
-  if (recent.length === 0) {
-    return <div className="px-2 py-1 text-xs text-chat-foreground-faint">还没有最近的项目</div>
-  }
-  return (
-    <div className="flex flex-col gap-0.5">
-      {recent.map((row, index) => (
-        <RecentRow key={row.worktree.id} row={row} status={recentStatuses[index]} />
-      ))}
-    </div>
-  )
-}
-
 /**
  * leniu: Android Dev's composer bar extras — 最近, 用量, context + 压缩, 新会话 — set out in the
  * toolbar instead of behind menus. Without a workspace footer (edits) only the context ring shows.
@@ -137,16 +122,16 @@ export function NativeChatComposerLeniuTools({
           <ToolPopover
             icon={<History className="size-3.5" />}
             label="最近"
-            className="w-[min(46rem,90vw)] p-1"
+            className="w-64 rounded-xl border-border/60 bg-muted p-4 shadow-xl"
           >
-            <RecentPopup />
+            <NativeChatRecentSettings />
           </ToolPopover>
           <ToolPopover
             icon={<ChartColumn className="size-3.5" />}
             label="用量"
             // Opening the panel is the user asking for fresh numbers.
             onOpen={() => void refreshRateLimits()}
-            className="w-72"
+            className="w-80 rounded-xl border-border/60 bg-muted p-4 shadow-xl"
           >
             <NativeChatUsagePopup agent={agent} />
           </ToolPopover>

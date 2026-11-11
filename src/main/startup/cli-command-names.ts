@@ -83,5 +83,6 @@ export const CLI_COMMAND_NAMES = [
   'viewport',
   'vm',
   'wait',
-  'worktree'
+  'worktree',
+  'yunxiao'
 ] as const

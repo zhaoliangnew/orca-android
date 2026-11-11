@@ -1,18 +1,21 @@
 import type { TaskPageComposerActionsModel } from './use-task-page-composer-actions'
 import { TaskPageListChrome } from './ListChrome'
 import { TaskPageContent } from './Content'
+import { YunxiaoPanel } from '@/components/yunxiao/YunxiaoPanel'
+import { useYunxiaoPage } from '@/components/yunxiao/yunxiao-page-store'
 export function TaskPageFrame({
   model
 }: {
   model: TaskPageComposerActionsModel
 }): React.JSX.Element | null {
+  const yunxiaoOpen = useYunxiaoPage((s) => s.open)
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
       {/* Why: pt-1.5 (6px) aligns this 32px icon cluster's center with the sidebar Tasks row, 22px below the titlebar. */}
       <div className="mx-auto flex min-h-0 min-w-0 w-full flex-1 flex-col px-5 pt-1.5 pb-4 md:px-8 md:pt-1.5 md:pb-5">
         <TaskPageListChrome model={model} />
 
-        <TaskPageContent model={model} />
+        {yunxiaoOpen ? <YunxiaoPanel /> : <TaskPageContent model={model} />}
       </div>
     </div>
   )

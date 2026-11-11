@@ -14,12 +14,15 @@ import {
   SelectItem
 } from '@/components/ui/select'
 import { openAppHttpLink } from '@/lib/browser/navigation/app-http-link-open'
+import { YunxiaoSourceButton } from '@/components/yunxiao/YunxiaoSourceButton'
+import { useYunxiaoPage } from '@/components/yunxiao/yunxiao-page-store'
 export function TaskPageSourceBar({
   model
 }: {
   model: TaskPageComposerActionsModel
 }): React.JSX.Element | null {
   const t = useTranslate()
+  const yunxiaoOpen = useYunxiaoPage((s) => s.open)
   const {
     openTaskPage,
     closeTaskPage,
@@ -74,7 +77,7 @@ export function TaskPageSourceBar({
         </Tooltip>
         <div className="mx-1 h-5 w-px bg-border/50" aria-hidden />
         {visibleSourceOptions.map((source) => {
-          const active = taskSource === source.id
+          const active = taskSource === source.id && !yunxiaoOpen
           const sourceAvailabilityNotice = taskSourceAvailabilityNoticeByProvider[source.id] ?? null
           const sourceDisabled = source.disabled || sourceAvailabilityNotice?.blocking
           return (
@@ -88,6 +91,7 @@ export function TaskPageSourceBar({
                       return
                     }
                     taskSourceManuallyChangedRef.current = true
+                    useYunxiaoPage.getState().setOpen(false)
                     openTaskPage(
                       {
                         taskSource: source.id
@@ -127,14 +131,18 @@ export function TaskPageSourceBar({
             </Tooltip>
           )
         })}
+        <YunxiaoSourceButton />
         <div
-          className="hidden min-w-0 max-w-[min(420px,40vw)] items-center rounded-md border border-border/50 bg-muted/35 px-2 py-1 text-xs text-muted-foreground sm:flex"
+          className={cn(
+            'hidden min-w-0 max-w-[min(420px,40vw)] items-center rounded-md border border-border/50 bg-muted/35 px-2 py-1 text-xs text-muted-foreground',
+            !yunxiaoOpen && 'sm:flex'
+          )}
           title={taskSourceContextSummary.title}
         >
           <span className="truncate">{taskSourceContextSummary.label}</span>
         </div>
       </div>
-      {taskSource === 'linear' && linearConnected ? (
+      {taskSource === 'linear' && linearConnected && !yunxiaoOpen ? (
         <div className="flex items-center gap-2">
           <LinearScopeSelector
             workspaces={linearWorkspaces}
@@ -185,7 +193,7 @@ export function TaskPageSourceBar({
           </Tooltip>
         </div>
       ) : null}
-      {taskSource === 'jira' && jiraConnected ? (
+      {taskSource === 'jira' && jiraConnected && !yunxiaoOpen ? (
         <div className="flex items-center gap-2">
           {jiraSites.length > 1 ? (
             <Select

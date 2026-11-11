@@ -761,6 +761,21 @@ import {
   WorktreeTeardownMissingTerminalsParams
 } from './worktree-params'
 import { WorktreeAdoptProvisionedRoot } from './worktree-provisioned-root-params'
+import {
+  YunxiaoAddEffort,
+  YunxiaoComment,
+  YunxiaoConnect,
+  YunxiaoCreate,
+  YunxiaoLinkWorkspace,
+  YunxiaoList,
+  YunxiaoProjectRef,
+  YunxiaoSetEstimate,
+  YunxiaoSetPlanDates,
+  YunxiaoSetStatus,
+  YunxiaoSubmitTest,
+  YunxiaoWatchProjects,
+  YunxiaoWorkItemRef
+} from './yunxiao-params'
 import { RepoIconDataUrlsParams } from '../sidebar-list/repo-icon-data-urls-contract'
 import { SidebarInputsReadParams } from '../sidebar-list/sidebar-inputs-feed-contract'
 import { SkillBundleInstallRequestSchema } from '../skill-bundle-install-contract'
@@ -1649,7 +1664,29 @@ export const RPC_PARAMS_BY_METHOD = {
   'worktree.set': WorktreeSet,
   'worktree.show': WorktreeShow,
   'worktree.sleep': WorktreeSleepParams,
-  'worktree.teardownMissingTerminals': WorktreeTeardownMissingTerminalsParams
+  'worktree.teardownMissingTerminals': WorktreeTeardownMissingTerminalsParams,
+  'yunxiao.addComment': YunxiaoComment,
+  'yunxiao.addEffort': YunxiaoAddEffort,
+  'yunxiao.comments': YunxiaoWorkItemRef,
+  'yunxiao.connect': YunxiaoConnect,
+  'yunxiao.context': YunxiaoWorkItemRef,
+  'yunxiao.create': YunxiaoCreate,
+  'yunxiao.disconnect': null,
+  'yunxiao.efforts': YunxiaoWorkItemRef,
+  'yunxiao.get': YunxiaoWorkItemRef,
+  'yunxiao.linkWorkspace': YunxiaoLinkWorkspace,
+  'yunxiao.links': null,
+  'yunxiao.list': YunxiaoList,
+  'yunxiao.projects': null,
+  'yunxiao.scanProjects': null,
+  'yunxiao.setEstimate': YunxiaoSetEstimate,
+  'yunxiao.setPlanDates': YunxiaoSetPlanDates,
+  'yunxiao.setStatus': YunxiaoSetStatus,
+  'yunxiao.sprints': YunxiaoProjectRef,
+  'yunxiao.status': null,
+  'yunxiao.statuses': YunxiaoWorkItemRef,
+  'yunxiao.submitTest': YunxiaoSubmitTest,
+  'yunxiao.watchProjects': YunxiaoWatchProjects
 } as const
 
 // Why: these methods bind a schema the shared contract cannot hold because its value

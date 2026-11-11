@@ -1,4 +1,5 @@
 import { useMemo, type ReactNode } from 'react'
+import { X } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '@/store'
 import { useTranslate } from '@/i18n/use-translate'
@@ -9,7 +10,7 @@ import { selectWorktreeActivityStatuses } from '@/components/sidebar/workspace-c
 import { buildRecentSwitchRows, type RecentSwitchRow } from './recent-switch-rows'
 import { NativeChatQuickPromptsMenu } from '../quick-prompts/NativeChatQuickPromptsMenu'
 
-const DEFAULT_RECENT_COUNT = 5
+export const DEFAULT_RECENT_COUNT = 5
 
 /** Short like the device-side history: N 分钟前 / N 小时前 today, otherwise M-D. */
 function formatRecentVisit(at: number | undefined, now = Date.now()): string {
@@ -82,23 +83,56 @@ function CurrentRow({ row }: { row: RecentSwitchRow }) {
 }
 
 export function RecentRow({ row, status }: { row: RecentSwitchRow; status: WorktreeStatus }) {
+  const updateSettings = useAppStore((s) => s.updateSettings)
+  const open = (): void => {
+    jumpToWorktreeFromSidebar(row.worktree.id, { executionHostId: row.worktree.hostId })
+  }
   return (
-    <button
-      type="button"
-      className={cn(ROW_GRID, ROW_CLASS, 'hover:bg-accent/60 hover:text-foreground')}
-      onClick={() =>
-        jumpToWorktreeFromSidebar(row.worktree.id, { executionHostId: row.worktree.hostId })
-      }
+    // A div so the row can hold its own remove button; Enter/Space still switch.
+    <div
+      role="button"
+      tabIndex={0}
+      className={cn(
+        ROW_GRID,
+        ROW_CLASS,
+        'group/recent cursor-pointer hover:bg-accent/60 hover:text-foreground'
+      )}
+      onClick={open}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          open()
+        }
+      }}
     >
       <SwitchRowCells
         row={row}
         trailing={
-          <span className={cn('truncate text-right', STATUS_CLASS[status])}>
-            {STATUS_CLASS[status] ? getWorktreeStatusLabel(status) : ''}
+          <span className="flex min-w-0 items-center justify-end gap-1">
+            <span
+              className={cn('truncate text-right group-hover/recent:hidden', STATUS_CLASS[status])}
+            >
+              {STATUS_CLASS[status] ? getWorktreeStatusLabel(status) : ''}
+            </span>
+            <button
+              type="button"
+              aria-label="从最近里移除"
+              title="从最近里移除（再次切换过去会重新出现）"
+              className="hidden rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground group-hover/recent:block"
+              onClick={(event) => {
+                event.stopPropagation()
+                const hidden = useAppStore.getState().settings?.recentSwitchHiddenAt ?? {}
+                void updateSettings({
+                  recentSwitchHiddenAt: { ...hidden, [row.worktree.id]: Date.now() }
+                })
+              }}
+            >
+              <X className="size-3.5" />
+            </button>
           </span>
         }
       />
-    </button>
+    </div>
   )
 }
 
@@ -113,11 +147,13 @@ export function useRecentSwitchRows(count: number): {
   const repos = useAppStore((s) => s.repos)
   const worktreesByRepo = useAppStore((s) => s.worktreesByRepo)
   const aliases = useAppStore((s) => s.settings?.productAliases)
+  const hiddenAt = useAppStore((s) => s.settings?.recentSwitchHiddenAt)
+  const clearedAt = useAppStore((s) => s.settings?.recentSwitchClearedAt)
   const { current, recent } = useMemo(
     () => buildRecentSwitchRows(useAppStore.getState(), count),
     // Store slices are listed so the rows rebuild when visits, repos or names change.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-    [count, lastVisited, activeWorktreeId, repos, worktreesByRepo, aliases]
+    [count, lastVisited, activeWorktreeId, repos, worktreesByRepo, aliases, hiddenAt, clearedAt]
   )
   const recentStatuses = useAppStore(
     useShallow((state) => {
