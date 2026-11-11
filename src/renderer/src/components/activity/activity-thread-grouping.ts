@@ -20,6 +20,15 @@ function activityStatusRank(thread: AgentPaneThread): number {
   return AGENT_LIST_STATUS_RANK[activityThreadStatusId(thread)]
 }
 
+// leniu: same-named repos live under many customer folders, so the header names the parent folder too.
+function projectGroupLabel(repo: { path: string; displayName: string }): string {
+  const parent = repo.path
+    .replace(/[\\/]+$/, '')
+    .split(/[\\/]/)
+    .at(-2)
+  return parent ? `${parent} / ${repo.displayName}` : repo.displayName
+}
+
 export function getActivityThreadGroup(
   thread: AgentPaneThread,
   groupBy: ActivityGroupBy,
@@ -35,7 +44,7 @@ export function getActivityThreadGroup(
   }
   if (groupBy === 'project') {
     return thread.repo
-      ? { key: `project:${thread.repo.id}`, label: thread.repo.displayName }
+      ? { key: `project:${thread.repo.id}`, label: projectGroupLabel(thread.repo) }
       : {
           key: 'project:unknown',
           label: t('auto.components.activity.ActivityPrototypePage.5651b216c6', 'Unknown project')

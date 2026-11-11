@@ -1,5 +1,6 @@
 import type { AntigravityChatAuthSettings } from './antigravity-chat-auth-config'
 import type { EmulatorOpeningSettings } from './emulator-opening-preferences'
+import type { LeniuWorkspaceSettings } from './leniu-workspace-settings'
 import type { BrowserExtensionGlobalSettings } from './browser/extensions/browser-extension-settings'
 import type { ClaudeAgentViewSettings } from './claude-agent-view'
 import type { BrowserLinkOpeningSettings } from './browser-link-opening-settings'
@@ -27,6 +28,7 @@ import type { KeybindingGlobalSettings } from './keybindings/global-settings'
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
 export type GlobalSettingsBase = AntigravityChatAuthSettings &
   EmulatorOpeningSettings &
+  LeniuWorkspaceSettings &
   SshRemoteControlSettings &
   ClaudeAgentViewSettings &
   NativeChatGlobalSettings &

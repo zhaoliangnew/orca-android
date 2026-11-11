@@ -108,7 +108,8 @@ export type RightSidebarTab =
 export type ActiveRightSidebarTab = Exclude<RightSidebarTab, 'search'>
 export type RightSidebarExplorerView = 'files' | 'search'
 
-export type ProjectOrderBy = 'manual' | 'recent'
+// leniu: 'folder' sorts projects by folder name, matching the local file order.
+export type ProjectOrderBy = 'manual' | 'recent' | 'folder'
 export type WorkspaceHostScope = 'all' | 'local' | `ssh:${string}` | `runtime:${string}`
 export type VisibleWorkspaceHostIds = Exclude<WorkspaceHostScope, 'all'>[] | null
 export type WorkspaceHostOrder = Exclude<WorkspaceHostScope, 'all'>[]

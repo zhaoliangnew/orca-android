@@ -43,6 +43,7 @@ const manualLabel = (): string =>
   translate('auto.components.sidebar.SidebarWorkspaceOptionsMenu.7b316bdd51', 'Manual')
 const recentLabel = (): string =>
   translate('auto.components.sidebar.SidebarWorkspaceOptionsMenu.b451c8b162', 'Recent')
+const folderOrderLabel = (): string => translate('projectOrder.folder', 'Folder order')
 const compactLabel = (): string =>
   translate('auto.components.sidebar.SidebarWorkspaceOptionsMenu.25105b28cb', 'Compact')
 
@@ -86,7 +87,7 @@ export const PROJECT_ORDER_OPTIONS = localizeChoices<
   ChoiceId<typeof WORKSPACE_PROJECT_ORDER_CHOICES>
 >(
   WORKSPACE_PROJECT_ORDER_CHOICES,
-  { manual: manualLabel, recent: recentLabel },
+  { manual: manualLabel, recent: recentLabel, folder: folderOrderLabel },
   {
     manual: () =>
       translate(
@@ -97,7 +98,9 @@ export const PROJECT_ORDER_OPTIONS = localizeChoices<
       translate(
         'auto.components.sidebar.SidebarWorkspaceOptionsMenu.af9249c505',
         'Most recent workspace activity'
-      )
+      ),
+    folder: () =>
+      translate('projectOrder.folderDescription', 'Folder names, like the local file list')
   }
 )
 

@@ -1,3 +1,4 @@
+import { ProjectGroupOverviewButton } from '../../../project-overview/ProjectGroupOverviewButton'
 import {
   getRootProjectHeaderKey,
   getRootProjectHeaderOccurrenceKey
@@ -187,7 +188,7 @@ export function renderWorktreeSectionHeaderRow(
       className={cn(
         'left-0 right-0',
         // Why: drop the inter-group spacer once the header pins so it sits flush at top (see getActiveStickyHeaderIndexForScroll).
-        args.hasHeaderTopSpacing && !isActiveStickyHeader && 'pt-1',
+        args.hasHeaderTopSpacing && !isActiveStickyHeader && 'pt-0.5',
         isActiveStickyHeader
           ? cn(
               'sticky z-20 bg-worktree-sidebar',
@@ -237,7 +238,7 @@ export function renderWorktreeSectionHeaderRow(
           data-workspace-status={headerWorkspaceStatus ?? undefined}
           data-workspace-pin-drop-target={isPinnedHeader ? '' : undefined}
           className={cn(
-            'group relative flex h-7 w-full items-center gap-1.5 pr-2 text-left transition-all',
+            'group relative flex h-6 w-full items-center gap-1.5 pr-2 text-left transition-all',
             !(isDraggableRepoHeader || isDraggableProjectGroupHeader) && 'cursor-pointer',
             ctx.highlightedRevealRowKey === row.key &&
               'rounded-md bg-worktree-sidebar-accent ring-1 ring-worktree-sidebar-ring/50',
@@ -335,6 +336,9 @@ export function renderWorktreeSectionHeaderRow(
             <div className="min-w-0 flex-1">
               <div className="flex min-w-0 items-center gap-1.5">
                 <div className="min-w-0 truncate text-[13px] font-semibold leading-4">{label}</div>
+                {folderBackedProjectGroup ? (
+                  <ProjectGroupOverviewButton projectGroup={folderBackedProjectGroup} />
+                ) : null}
                 {hostContext ? <ProjectHeaderHostLabel context={hostContext} /> : null}
                 <RepoForkIndicator upstream={row.repo?.upstream} />
                 <FolderPathStatusIndicator status={projectGroupPathStatus} />

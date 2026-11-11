@@ -16,6 +16,8 @@ export const LINEAGE_CHILDREN_INLINE_OFFSET =
   LINEAGE_IMMEDIATE_PARENT_STEP - WORKTREE_CARD_SURFACE_MARGIN - FLUSH_CARD_MIN_CONTENT_INSET
 // Why: header icon+gap (22) vs. card margin+border+legacy lane+gap (23) minus pullback lands the title on the header label.
 const GROUPED_CARD_TITLE_HEADER_LABEL_OFFSET = 3
+// leniu: nest grouped worktrees one tree level under their repo header so ownership reads at a glance.
+const LENIU_GROUPED_WORKTREE_EXTRA_INDENT = SIDEBAR_TREE_INDENT
 export const PROJECT_GROUP_HEADER_BASE_PADDING = 10
 // Why: shared with project headers so titles don't shift when grouping mode changes.
 export const WORKTREE_SECTION_HEADER_PADDING_LEFT = PROJECT_GROUP_HEADER_BASE_PADDING
@@ -42,6 +44,7 @@ export function getWorktreeCardContentIndent(args: {
   return args.isGrouped
     ? getProjectGroupHeaderPaddingLeft(args.groupDepth) +
         GROUPED_CARD_TITLE_HEADER_LABEL_OFFSET +
+        LENIU_GROUPED_WORKTREE_EXTRA_INDENT +
         lineageIndent
     : lineageIndent
 }

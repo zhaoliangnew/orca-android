@@ -117,10 +117,9 @@ function buildSparseFolderScopes(args: {
       if (!relativePath) {
         return false
       }
-      return (
-        stats.directRepoCount >= 2 ||
-        (stats.directRepoCount > 0 && stats.totalRepoCount > stats.directRepoCount)
-      )
+      // leniu: every folder holding a repo becomes a group, so single-product customer folders
+      // (workspace_5.0_项目/2.0-三门县派出所/app_dining_cabinet) keep their customer name.
+      return stats.directRepoCount >= 1 || stats.totalRepoCount > stats.directRepoCount
     })
     .map(([relativePath]) => relativePath)
     .sort(

@@ -271,7 +271,10 @@ export function NativeChatComposerField({
     >
       <div className={launch ? undefined : 'native-chat-composer-gutter pt-2 pb-4'}>
         <div
-          className={cn('relative w-full', !launch && 'mx-auto max-w-(--chat-content-max-width)')}
+          className={cn(
+            'relative flex w-full flex-col',
+            !launch && 'mx-auto max-w-(--chat-content-max-width)'
+          )}
         >
           {autocomplete.mode === 'slash' ? (
             <NativeChatPickerMenu

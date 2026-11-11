@@ -24576,7 +24576,9 @@
       "categoryPlaceholder": "Keyword",
       "addCategory": "Add category",
       "removeCategory": "Remove {{value}}",
-      "columnSystem": "System"
+      "columnSystem": "System",
+      "offline": "Offline",
+      "copiedShort": "Copied"
     },
     "secondaryDisplay": "Secondary display"
   },
@@ -24794,5 +24796,38 @@
       "dismiss": "Dismiss",
       "cancelDownload": "Cancel download"
     }
+  },
+  "projectOverview": {
+    "open": "Workspace overview",
+    "newGroup": "New group",
+    "untitled": "Untitled group",
+    "deleteGroup": "Delete group",
+    "dropHere": "Drag products here",
+    "main": "Main",
+    "aliasPlaceholder": "Chinese name",
+    "editAlias": "Edit name"
+  },
+  "recentSwitch": {
+    "current": "Current"
+  },
+  "quickPrompts": {
+    "title": "Quick prompts",
+    "edit": "Edit quick prompts…",
+    "editTitle": "Quick prompts",
+    "clickAgain": "Click again to send: {{value}}",
+    "cancel": "Cancel",
+    "send": "Send",
+    "add": "Add",
+    "reset": "Restore defaults",
+    "label": "Button text",
+    "group": "Group (empty = 我的)",
+    "confirm": "Click twice to send (for commit, push, install…)",
+    "textHint": "Message sent to the AI; 【hint】 becomes a blank to fill",
+    "delete": "Delete",
+    "newLabel": "New prompt"
+  },
+  "projectOrder": {
+    "folder": "Folder order",
+    "folderDescription": "Folder names, like the local file list"
   }
 }

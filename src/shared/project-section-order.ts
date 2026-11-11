@@ -1,3 +1,4 @@
+import { compareFolderOrderNames, folderOrderName } from './sidebar-list/folder-order'
 // Labels and order of the desktop sidebar's project sections, shared so the paired phone matches.
 import type { ProjectSectionEntry, ProjectSectionRepo } from './project-section-grouping'
 import { getRepoDisplayLabelKey, getRepoDisplayLabelsByPath } from './repo-display-labels'
@@ -120,6 +121,10 @@ export function sortProjectEntries<
   projectOrderBy: ProjectOrderBy,
   repoOrder: ReadonlyMap<string, number> | undefined
 ): T[] {
+  if (projectOrderBy === 'folder') {
+    const name = (entry: T): string => folderOrderName(entry[1].repo?.path, entry[1].label)
+    return [...entries].sort((a, b) => compareFolderOrderNames(name(a), name(b)))
+  }
   if (projectOrderBy === 'recent') {
     if (entries.length < 2) {
       return [...entries]

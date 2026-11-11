@@ -18,6 +18,19 @@ export function getEmulatorOpeningMode(settings: {
   )
 }
 
+/** leniu: an Android board seen before, so it stays listed (and reconnectable by IP) while offline. */
+export type KnownAndroidDevice = {
+  sn: string
+  /** Last adb serial, e.g. 192.168.9.184:5555. */
+  serial: string
+  vendor?: string
+  model?: string
+  androidVersion?: string
+  apiLevel?: string
+  key?: string
+  lastSeen: number
+}
+
 export type EmulatorOpeningSettings = {
   mobileEmulatorOpeningMode?: EmulatorOpeningMode
   mobileEmulatorRecentDevices?: EmulatorDevicePreference[]
@@ -25,4 +38,6 @@ export type EmulatorOpeningSettings = {
   mobileEmulatorDeviceRemarks?: Record<string, string>
   /** leniu: category chips for the device table; unset means derived from remarks. */
   mobileEmulatorDeviceKeywords?: string[]
+  /** leniu: Android boards seen before, keyed by serial number. */
+  mobileEmulatorKnownDevices?: Record<string, KnownAndroidDevice>
 }

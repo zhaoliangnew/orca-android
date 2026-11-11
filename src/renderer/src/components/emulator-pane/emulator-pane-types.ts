@@ -14,6 +14,10 @@ export type SimulatorDeviceRow = {
   serialNo?: string
   vendor?: string
   deviceKey?: string
+  /** leniu: remembered board that adb does not see now; selecting it reconnects by IP. */
+  offline?: boolean
+  /** adb address used to reconnect an offline board (its udid is the SN so rows stay unique). */
+  connectAddress?: string
 }
 
 export type EmulatorStreamInfo = {

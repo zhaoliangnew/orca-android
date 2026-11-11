@@ -5,6 +5,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils'
 import type { SimulatorDeviceRow } from './emulator-pane-types'
 import { useTranslate } from '@/i18n/use-translate'
+import { useAppStore } from '@/store'
+import { emulatorDeviceRemark, emulatorDeviceShortIp } from './emulator-device-remark'
 
 type EmulatorPaneToolbarProps = {
   displayName: string
@@ -34,6 +36,13 @@ export function EmulatorPaneToolbar({
   onRotate
 }: EmulatorPaneToolbarProps) {
   const t = useTranslate()
+  const remarks = useAppStore((s) => s.settings?.mobileEmulatorDeviceRemarks)
+  const selected = devices.find((device) => device.udid === selectedUdid)
+  const selectedRemark = selected ? emulatorDeviceRemark(selected, remarks) : undefined
+  // leniu: name the board by IP and remark (e.g. "10.136 · 餐台") instead of its model.
+  const title = selectedRemark
+    ? [emulatorDeviceShortIp(selected!.udid), selectedRemark].filter(Boolean).join(' · ')
+    : displayName
   // Show preview/control connection state rather than CoreSimulator boot state.
   const statusLabel = isLive ? 'Connected' : loading ? 'Working…' : 'Not connected'
   const subtleStatus = isLive || loading
@@ -44,7 +53,7 @@ export function EmulatorPaneToolbar({
   return (
     <div className="flex items-center gap-2 border-b border-border px-3 py-2">
       <Smartphone className="size-4 shrink-0 text-primary" />
-      <span className="truncate font-medium">{displayName}</span>
+      <span className="truncate font-medium">{title}</span>
       <span
         className={cn(
           'shrink-0 text-[11px]',

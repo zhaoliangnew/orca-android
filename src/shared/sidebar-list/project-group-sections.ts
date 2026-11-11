@@ -19,6 +19,11 @@ import {
 import { appendWorktreeRows } from './row-builders'
 import { getFolderLaneSectionKey } from './folder-workspace-occurrences'
 import { compareRootProjectEntries } from '../root-project-order'
+import {
+  compareFolderOrderNames,
+  folderOrderName,
+  projectGroupFolderOrderName
+} from './folder-order'
 
 export function appendProjectGroupSections(
   ctx: SectionAppendContext,
@@ -43,6 +48,14 @@ export function appendProjectGroupSections(
   }
 
   const sortRepoEntriesWithinGroup = (entries: OrderedGroupEntry[]): OrderedGroupEntry[] => {
+    if (projectOrderBy === 'folder') {
+      return [...entries].sort((left, right) =>
+        compareFolderOrderNames(
+          folderOrderName(left[1].repo?.path, left[1].label),
+          folderOrderName(right[1].repo?.path, right[1].label)
+        )
+      )
+    }
     if (projectOrderBy === 'recent') {
       if (entries.length < 2) {
         return [...entries]
@@ -86,6 +99,12 @@ export function appendProjectGroupSections(
   for (const groups of childGroupsByParentId.values()) {
     groups.sort(
       (left, right) =>
+        (projectOrderBy === 'folder'
+          ? compareFolderOrderNames(
+              projectGroupFolderOrderName(left),
+              projectGroupFolderOrderName(right)
+            )
+          : 0) ||
         left.tabOrder - right.tabOrder ||
         compareSidebarText(left.name, right.name) ||
         compareCodePoints(left.executionHostId ?? '', right.executionHostId ?? '') ||
@@ -147,6 +166,13 @@ export function appendProjectGroupSections(
       (repoEntry) => ({ repoEntry })
     )
   ]
+  if (projectOrderBy === 'folder') {
+    const rootName = (entry: (typeof rootEntries)[number]): string =>
+      'projectGroup' in entry
+        ? projectGroupFolderOrderName(entry.projectGroup)
+        : folderOrderName(entry.repoEntry[1].repo?.path, entry.repoEntry[1].label)
+    rootEntries.sort((left, right) => compareFolderOrderNames(rootName(left), rootName(right)))
+  }
   if (projectOrderBy === 'manual') {
     rootEntries.sort((left, right) => {
       const leftEntry =

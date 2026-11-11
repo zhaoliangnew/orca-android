@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -26,6 +26,7 @@ import {
   EmulatorDeviceRemarkEditor
 } from './emulator-device-picker-row'
 import { EmulatorNetworkConnectForm } from './emulator-network-connect-form'
+import { updatedKnownDevices, withKnownOfflineDevices } from './emulator-known-devices'
 import { EmulatorDeviceKeywordBar } from './emulator-device-keyword-bar'
 import {
   defaultEmulatorDeviceKeywords,
@@ -41,7 +42,7 @@ type Props = {
 }
 
 export function EmulatorDevicePicker({
-  devices,
+  devices: liveDevices,
   selectedUdid,
   disabled,
   onSelectDevice,
@@ -49,6 +50,11 @@ export function EmulatorDevicePicker({
 }: Props) {
   const t = useTranslate()
   const remarks = useAppStore((s) => s.settings?.mobileEmulatorDeviceRemarks)
+  const knownDevices = useAppStore((s) => s.settings?.mobileEmulatorKnownDevices)
+  const devices = useMemo(
+    () => withKnownOfflineDevices(liveDevices, knownDevices),
+    [liveDevices, knownDevices]
+  )
   const savedKeywords = useAppStore((s) => s.settings?.mobileEmulatorDeviceKeywords)
   const updateSettings = useAppStore((s) => s.updateSettings)
   const [open, setOpen] = useState(false)
@@ -59,6 +65,12 @@ export function EmulatorDevicePicker({
   const [unavailableOpen, setUnavailableOpen] = useState(false)
   const [editingUdid, setEditingUdid] = useState<string | null>(null)
   const [remarkDraft, setRemarkDraft] = useState('')
+  useEffect(() => {
+    const next = updatedKnownDevices(liveDevices, knownDevices)
+    if (next) {
+      void updateSettings({ mobileEmulatorKnownDevices: next })
+    }
+  }, [liveDevices, knownDevices, updateSettings])
   const onlineCount = devices.filter((device) => device.state === 'Booted').length
   const keywords = savedKeywords ?? defaultEmulatorDeviceKeywords(remarks)
   const keywordCounts = new Map(
@@ -103,7 +115,11 @@ export function EmulatorDevicePicker({
         remark={remark}
         selected={device.udid === selectedUdid}
         onSelect={() => {
-          onSelectDevice(device.udid)
+          if (device.offline) {
+            void onConnectAddress(device.connectAddress ?? device.udid)
+          } else {
+            onSelectDevice(device.udid)
+          }
           setSearch('')
           setOpen(false)
         }}
@@ -162,7 +178,7 @@ export function EmulatorDevicePicker({
           <ChevronDown className="size-3.5 shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-[820px] max-w-[calc(100vw-2rem)] p-0" wheelScroll>
+      <PopoverContent align="end" className="w-[960px] max-w-[calc(100vw-2rem)] p-0" wheelScroll>
         <Command density="menu">
           <div className="flex flex-wrap items-center gap-2 border-b border-border p-2">
             <CommandInput

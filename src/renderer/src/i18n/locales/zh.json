@@ -23252,7 +23252,9 @@
       "categoryPlaceholder": "关键词",
       "addCategory": "添加分类",
       "removeCategory": "移除 {{value}}",
-      "columnSystem": "系统"
+      "columnSystem": "系统",
+      "offline": "离线",
+      "copiedShort": "已复制"
     },
     "secondaryDisplay": "副屏"
   },
@@ -23448,5 +23450,38 @@
       "dismiss": "关闭",
       "cancelDownload": "取消下载"
     }
+  },
+  "projectOverview": {
+    "open": "工作区总览",
+    "newGroup": "新建分组",
+    "untitled": "未命名分组",
+    "deleteGroup": "删除分组",
+    "dropHere": "拖产品到这里",
+    "main": "主目录",
+    "aliasPlaceholder": "中文名",
+    "editAlias": "修改中文名"
+  },
+  "recentSwitch": {
+    "current": "当前"
+  },
+  "quickPrompts": {
+    "title": "快捷指令",
+    "edit": "编辑快捷指令…",
+    "editTitle": "快捷指令",
+    "clickAgain": "再点一次发送：{{value}}",
+    "cancel": "取消",
+    "send": "发送",
+    "add": "新增",
+    "reset": "恢复默认",
+    "label": "按钮文字",
+    "group": "分组（留空归到“我的”）",
+    "confirm": "需要点两次才发送（提交、推送、安装这类）",
+    "textHint": "发给 AI 的内容；用【提示】表示发送前要填的空",
+    "delete": "删除",
+    "newLabel": "新指令"
+  },
+  "projectOrder": {
+    "folder": "文件夹顺序",
+    "folderDescription": "按文件夹名排序，和本地文件列表一致"
   }
 }

@@ -7,8 +7,6 @@ import { TruncatedSidebarLabel } from '../../truncated-sidebar-label'
 import type { WorktreeCardController } from '../controller/use-worktree-card-controller'
 import {
   WorktreeCardDeleteQuickAction,
-  WorktreeCardPrimaryBadge,
-  WorktreeCardPrimaryStar,
   WorktreeCardRenameErrorButton,
   WorktreeCardRepoChip,
   WorktreeCardRuntimeHostMark,
@@ -23,6 +21,7 @@ import { shouldBeginWorktreeRename } from '../controller/worktree-card-model'
 import { WorktreeCardSshHostControl } from '../host/WorktreeCardSshHostControl'
 import { WorktreeHostContextBadge } from '../host/WorktreeHostContextBadge'
 import { WorktreeTitleInlineRename } from '../identity/WorktreeTitleInlineRename'
+import { WorktreeKindTag } from '../identity/WorktreeKindTag'
 import { cardElement } from './card-template-compiler'
 
 type Card = WorktreeCardController
@@ -33,25 +32,29 @@ const withoutTitleTooltip = (title: React.ReactElement): React.ReactElement => t
 
 function title(props: Readonly<Record<string, unknown>>, card: Card): React.ReactNode {
   const { affiliateListMode, worktree } = card
+  const kindTag = card.isFolder ? null : <WorktreeKindTag isMain={worktree.isMainWorktree} />
   return (
-    <WorktreeTitleInlineRename
-      displayName={card.visibleCardTitle}
-      disabled={card.isDeleting || affiliateListMode}
-      showUnreadEmphasis={card.showUnreadEmphasis}
-      dimReadTitle={props.dimWhenRead === true}
-      className="text-[13px] leading-5"
-      editingClassName="flex-1"
-      titleWrapper={props.tooltip === false ? withoutTitleTooltip : undefined}
-      onEditingChange={affiliateListMode ? undefined : card.setTitleRenaming}
-      onRename={card.handleRenameTitle}
-      beginEditing={
-        !affiliateListMode &&
-        shouldBeginWorktreeRename(card.renamingWorktreeId, worktree.id, card.renameRowKey)
-      }
-      onBeginEditingConsumed={
-        affiliateListMode ? undefined : () => card.setRenamingWorktreeId(null)
-      }
-    />
+    <>
+      {kindTag}
+      <WorktreeTitleInlineRename
+        displayName={card.visibleCardTitle}
+        disabled={card.isDeleting || affiliateListMode}
+        showUnreadEmphasis={card.showUnreadEmphasis}
+        dimReadTitle={props.dimWhenRead === true}
+        className="text-[13px] leading-5"
+        editingClassName="flex-1"
+        titleWrapper={props.tooltip === false ? withoutTitleTooltip : undefined}
+        onEditingChange={affiliateListMode ? undefined : card.setTitleRenaming}
+        onRename={card.handleRenameTitle}
+        beginEditing={
+          !affiliateListMode &&
+          shouldBeginWorktreeRename(card.renamingWorktreeId, worktree.id, card.renameRowKey)
+        }
+        onBeginEditingConsumed={
+          affiliateListMode ? undefined : () => card.setRenamingWorktreeId(null)
+        }
+      />
+    </>
   )
 }
 
@@ -107,10 +110,9 @@ export const CARD_IDENTITY_PARTS = {
       onOpen={card.handleOpenRenameErrorDialog}
     />
   )),
-  PrimaryBadge: part(['hasHoverDetails'], (props, _children, card) => (
-    <WorktreeCardPrimaryBadge card={card} hasHoverDetails={props.hasHoverDetails === true} />
-  )),
-  PrimaryStar: part([], () => <WorktreeCardPrimaryStar />),
+  // leniu: the 主目录/tree text tag beside the title replaces the primary badge and star.
+  PrimaryBadge: part(['hasHoverDetails'], () => null),
+  PrimaryStar: part([], () => null),
   SparseBadge: part(['hasHoverDetails'], (props, _children, card) => (
     <WorktreeCardSparseBadge
       card={card}

@@ -1,3 +1,4 @@
+import { NativeChatRecentSwitchList } from '../recent/NativeChatRecentSwitchList'
 import { useMemo } from 'react'
 import { Folder, GitBranch, GitCommitHorizontal, Server } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
@@ -116,78 +117,81 @@ export function NativeChatComposerWorkspace({
     ) : null
 
   return (
-    <div className="@container mt-1 flex h-5.5 shrink-0 min-w-0 items-center gap-1.5 px-3 text-2xs text-chat-foreground-faint">
-      {hostId && (
-        <span
-          className={
-            identity
-              ? 'hidden min-w-0 max-w-40 shrink items-center gap-1 @lg:flex'
-              : 'hidden min-w-0 max-w-40 shrink items-center gap-1 @sm:flex'
-          }
-        >
-          <Server className="size-3 shrink-0" aria-hidden />
-          {hostId === 'local' ? (
-            <LocalMachineName name={machine ?? ''} />
-          ) : (
-            <span className={FOOTER_TEXT} title={machine}>
-              {machine}
-            </span>
-          )}
-        </span>
-      )}
-      {checkout && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="xs"
-              className={
-                identity
-                  ? 'hidden h-5.5 min-w-0 max-w-56 shrink justify-start @sm:flex'
-                  : 'h-5.5 min-w-0 max-w-56 shrink justify-start'
-              }
-              aria-label={t(
-                'components.native-chat.composerWorkspace.copyIdentity',
-                'Copy {{value0}}',
-                { value0: checkout }
-              )}
-              onClick={() => void copyValue(checkout)}
-            >
-              <Folder className="size-3" aria-hidden />
-              <span className={FOOTER_TEXT}>{checkout}</span>
-              <span className="shrink-0 font-normal text-2xs text-chat-foreground-faint [text-box:trim-both_cap_alphabetic]">
-                · {kindLabel}
+    <>
+      <div className="@container mt-1 flex h-5.5 shrink-0 min-w-0 items-center gap-1.5 px-3 text-2xs text-chat-foreground-faint">
+        {hostId && (
+          <span
+            className={
+              identity
+                ? 'hidden min-w-0 max-w-40 shrink items-center gap-1 @lg:flex'
+                : 'hidden min-w-0 max-w-40 shrink items-center gap-1 @sm:flex'
+            }
+          >
+            <Server className="size-3 shrink-0" aria-hidden />
+            {hostId === 'local' ? (
+              <LocalMachineName name={machine ?? ''} />
+            ) : (
+              <span className={FOOTER_TEXT} title={machine}>
+                {machine}
               </span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="top" sideOffset={4}>
-            {path}
-          </TooltipContent>
-        </Tooltip>
-      )}
-      {identity?.kind === 'branch' &&
-      rowWorktreeId &&
-      repoId &&
-      hostId &&
-      path &&
-      // Direct SSH ids aren't served by the git switch route; those keep click-to-copy.
-      parseExecutionHostId(hostId)?.kind !== 'ssh' ? (
-        <NativeChatComposerBranchPicker
-          worktreeId={rowWorktreeId}
-          worktreePath={path}
-          hostId={hostId}
-          repoId={repoId}
-          branch={identity.branchName}
-          turnActive={isWorking}
-          textClassName={FOOTER_TEXT}
-          onCopyBranch={() => void copyValue(identity.branchName)}
-          fallback={copyIdentityButton}
-        />
-      ) : (
-        copyIdentityButton
-      )}
-    </div>
+            )}
+          </span>
+        )}
+        {checkout && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={
+                  identity
+                    ? 'hidden h-5.5 min-w-0 max-w-56 shrink justify-start @sm:flex'
+                    : 'h-5.5 min-w-0 max-w-56 shrink justify-start'
+                }
+                aria-label={t(
+                  'components.native-chat.composerWorkspace.copyIdentity',
+                  'Copy {{value0}}',
+                  { value0: checkout }
+                )}
+                onClick={() => void copyValue(checkout)}
+              >
+                <Folder className="size-3" aria-hidden />
+                <span className={FOOTER_TEXT}>{checkout}</span>
+                <span className="shrink-0 font-normal text-2xs text-chat-foreground-faint [text-box:trim-both_cap_alphabetic]">
+                  · {kindLabel}
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={4}>
+              {path}
+            </TooltipContent>
+          </Tooltip>
+        )}
+        {identity?.kind === 'branch' &&
+        rowWorktreeId &&
+        repoId &&
+        hostId &&
+        path &&
+        // Direct SSH ids aren't served by the git switch route; those keep click-to-copy.
+        parseExecutionHostId(hostId)?.kind !== 'ssh' ? (
+          <NativeChatComposerBranchPicker
+            worktreeId={rowWorktreeId}
+            worktreePath={path}
+            hostId={hostId}
+            repoId={repoId}
+            branch={identity.branchName}
+            turnActive={isWorking}
+            textClassName={FOOTER_TEXT}
+            onCopyBranch={() => void copyValue(identity.branchName)}
+            fallback={copyIdentityButton}
+          />
+        ) : (
+          copyIdentityButton
+        )}
+      </div>
+      <NativeChatRecentSwitchList />
+    </>
   )
 }
 

@@ -1,5 +1,5 @@
+import { useEffect, useState } from 'react'
 import { Check, Pencil } from 'lucide-react'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { CommandItem } from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
@@ -11,10 +11,19 @@ import { emulatorDeviceShortIp } from './emulator-device-remark'
 
 // leniu: one device per line — IP | remark + vendor · model | OS | SN | key | status | actions.
 export const EMULATOR_DEVICE_ROW_GRID =
-  'grid grid-cols-[64px_minmax(0,1.8fr)_minmax(0,1fr)_minmax(0,1.1fr)_64px_52px_44px] items-center gap-2'
+  'grid grid-cols-[60px_minmax(0,1fr)_140px_150px_64px_48px_44px] items-center gap-2'
 
+// The popover covers app toasts, so the copied confirmation shows in the cell itself.
 function CopyCell({ value }: { value?: string }) {
   const t = useTranslate()
+  const [copied, setCopied] = useState(false)
+  useEffect(() => {
+    if (!copied) {
+      return
+    }
+    const timer = setTimeout(() => setCopied(false), 1200)
+    return () => clearTimeout(timer)
+  }, [copied])
   if (!value) {
     return <span className="text-muted-foreground">-</span>
   }
@@ -22,15 +31,18 @@ function CopyCell({ value }: { value?: string }) {
     <button
       type="button"
       title={t('emulator.picker.copy', 'Click to copy')}
-      className="truncate text-left font-mono text-xs hover:text-primary hover:underline"
+      className={cn(
+        'truncate text-left font-mono text-xs hover:text-primary hover:underline',
+        copied && 'text-emerald-500'
+      )}
       onPointerDown={(event) => event.stopPropagation()}
       onClick={(event) => {
         event.stopPropagation()
         void window.api.ui.writeClipboardText(value)
-        toast.success(t('emulator.picker.copied', 'Copied {{value}}', { value }))
+        setCopied(true)
       }}
     >
-      {value}
+      {copied ? t('emulator.picker.copiedShort', 'Copied') : value}
     </button>
   )
 }
@@ -51,8 +63,9 @@ export function EmulatorDevicePickerRow({
   onEditRemark
 }: RowProps) {
   const t = useTranslate()
-  const status =
-    device.state === 'Booted'
+  const status = device.offline
+    ? t('emulator.picker.offline', 'Offline')
+    : device.state === 'Booted'
       ? t('emulator.picker.running', 'Running')
       : device.state === 'Booting'
         ? t('emulator.picker.starting', 'Starting')
@@ -80,7 +93,7 @@ export function EmulatorDevicePickerRow({
       onSelect={onSelect}
     >
       <span className="font-mono text-xs font-medium text-primary">
-        {emulatorDeviceShortIp(device.udid) ?? '-'}
+        {emulatorDeviceShortIp(device.connectAddress ?? device.udid) ?? '-'}
       </span>
       <span className="flex min-w-0 items-baseline gap-2">
         {remark && <span className="truncate">{remark}</span>}
