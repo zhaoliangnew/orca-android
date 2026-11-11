@@ -13,6 +13,7 @@ type EmulatorPaneToolbarProps = {
   devices: SimulatorDeviceRow[]
   selectedUdid: string | null
   onSelectDevice: (udid: string) => void
+  onConnectAddress: (address: string) => Promise<void>
   onAttach: () => void
   onShutdown: () => void
   onHome: () => void
@@ -26,6 +27,7 @@ export function EmulatorPaneToolbar({
   devices,
   selectedUdid,
   onSelectDevice,
+  onConnectAddress,
   onAttach,
   onShutdown,
   onHome,
@@ -57,6 +59,7 @@ export function EmulatorPaneToolbar({
         devices={devices}
         selectedUdid={selectedUdid}
         onSelectDevice={onSelectDevice}
+        onConnectAddress={onConnectAddress}
         disabled={loading}
       />
       <Tooltip>

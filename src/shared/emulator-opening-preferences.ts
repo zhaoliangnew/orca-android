@@ -21,4 +21,8 @@ export function getEmulatorOpeningMode(settings: {
 export type EmulatorOpeningSettings = {
   mobileEmulatorOpeningMode?: EmulatorOpeningMode
   mobileEmulatorRecentDevices?: EmulatorDevicePreference[]
+  /** leniu: device nicknames keyed by Android serial number (ro.serialno), else the adb serial. */
+  mobileEmulatorDeviceRemarks?: Record<string, string>
+  /** leniu: category chips for the device table; unset means derived from remarks. */
+  mobileEmulatorDeviceKeywords?: string[]
 }

@@ -1,7 +1,8 @@
 import type { z } from 'zod'
 import type { RotateOrientation } from '../../../../shared/rpc-contract/emulator-params'
 
-export type DeviceFrameKind = 'phone' | 'tablet'
+// leniu: 'board' is a square-cornered shell for Android kiosks, scales and other fixed devices.
+export type DeviceFrameKind = 'phone' | 'tablet' | 'board'
 
 export type StreamSize = {
   width: number
@@ -43,8 +44,12 @@ const FIT_MARGIN_PX = 0.5
 
 export function resolveDeviceFrameKind(
   deviceName: string | undefined,
-  screenAspectRatio: number
+  screenAspectRatio: number,
+  isAndroidStream = false
 ): DeviceFrameKind {
+  if (isAndroidStream) {
+    return 'board'
+  }
   if (deviceName && /ipad/i.test(deviceName)) {
     return 'tablet'
   }
@@ -131,7 +136,12 @@ function fitScreenToPane(paneSize: PaneSize | null, aspectRatio: number): PaneSi
 
 function measureChrome(screenSize: PaneSize, kind: DeviceFrameKind) {
   const shortSide = Math.min(screenSize.width, screenSize.height)
-  const bezel = kind === 'phone' ? clamp(shortSide * 0.021, 7, 15) : clamp(shortSide * 0.026, 8, 22)
+  const bezel =
+    kind === 'board'
+      ? clamp(shortSide * 0.012, 4, 10)
+      : kind === 'phone'
+        ? clamp(shortSide * 0.021, 7, 15)
+        : clamp(shortSide * 0.026, 8, 22)
   const hardwareOutset = kind === 'phone' ? clamp(shortSide * 0.012, 3, 7) : 0
   const sideButtonThickness = kind === 'phone' ? clamp(shortSide * 0.01, 3, 6) : 0
 
@@ -181,9 +191,17 @@ export function fitDeviceFrameToPane(
   const shellHeight = screenSize.height + bezel * 2
   const shortSide = Math.min(screenSize.width, screenSize.height)
   const outerRadius =
-    kind === 'phone' ? clamp(shortSide * 0.135, 44, 92) : clamp(shortSide * 0.065, 24, 56)
+    kind === 'board'
+      ? 0
+      : kind === 'phone'
+        ? clamp(shortSide * 0.135, 44, 92)
+        : clamp(shortSide * 0.065, 24, 56)
   const innerRadius =
-    kind === 'phone' ? clamp(outerRadius - bezel, 34, 82) : clamp(outerRadius - bezel * 0.7, 18, 48)
+    kind === 'board'
+      ? 0
+      : kind === 'phone'
+        ? clamp(outerRadius - bezel, 34, 82)
+        : clamp(outerRadius - bezel * 0.7, 18, 48)
 
   return {
     kind,

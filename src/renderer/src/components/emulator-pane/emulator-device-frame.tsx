@@ -358,8 +358,8 @@ export function EmulatorDeviceFrame({
   // Physical orientation follows successful rotate requests even if portrait-locked apps keep portrait pixels.
   const screenAspectRatio = visualStreamGeometry.aspectRatio
   const frameKind = useMemo(
-    () => resolveDeviceFrameKind(deviceName, streamAspectRatio),
-    [deviceName, streamAspectRatio]
+    () => resolveDeviceFrameKind(deviceName, streamAspectRatio, Boolean(scrcpyDeviceId)),
+    [deviceName, scrcpyDeviceId, streamAspectRatio]
   )
   const frameLayout = useMemo(
     () => fitDeviceFrameToPane(paneSize, screenAspectRatio, frameKind),

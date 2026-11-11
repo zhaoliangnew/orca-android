@@ -24561,8 +24561,24 @@
       "runtimeUnavailable": "Runtime unavailable",
       "running": "Running",
       "starting": "Starting",
-      "stopped": "Stopped"
-    }
+      "stopped": "Stopped",
+      "connect": "Connect",
+      "connectPlaceholder": "Device IP, e.g. 192.168.9.184",
+      "editRemark": "Edit remark",
+      "remarkPlaceholder": "Remark, press Enter to save",
+      "all": "All",
+      "online": "Online",
+      "columnName": "Name",
+      "columnStatus": "Status",
+      "copy": "Click to copy",
+      "copied": "Copied {{value}}",
+      "category": "Category",
+      "categoryPlaceholder": "Keyword",
+      "addCategory": "Add category",
+      "removeCategory": "Remove {{value}}",
+      "columnSystem": "System"
+    },
+    "secondaryDisplay": "Secondary display"
   },
   "ephemeralVm": {
     "errors": {

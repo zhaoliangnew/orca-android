@@ -23237,8 +23237,24 @@
       "runtimeUnavailable": "运行时不可用",
       "running": "运行中",
       "starting": "正在启动",
-      "stopped": "已停止"
-    }
+      "stopped": "已停止",
+      "connect": "连接",
+      "connectPlaceholder": "设备 IP，如 192.168.9.184",
+      "editRemark": "编辑备注",
+      "remarkPlaceholder": "输入备注，回车保存",
+      "all": "全部",
+      "online": "在线",
+      "columnName": "名称",
+      "columnStatus": "状态",
+      "copy": "点击复制",
+      "copied": "已复制 {{value}}",
+      "category": "分类",
+      "categoryPlaceholder": "关键词",
+      "addCategory": "添加分类",
+      "removeCategory": "移除 {{value}}",
+      "columnSystem": "系统"
+    },
+    "secondaryDisplay": "副屏"
   },
   "ephemeralVm": {
     "errors": {

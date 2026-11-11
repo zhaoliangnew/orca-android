@@ -17,6 +17,9 @@ import {
   type AndroidCommandRunner
 } from '../android/android-command-runner'
 import { ensureAdbOk } from '../android/android-adb-result'
+import { connectAndroidNetworkDevice } from '../android/android-network-connect'
+import { listAndroidSecondaryDisplays, type AndroidDisplay } from '../android/android-display-list'
+import { androidStreamKey } from '../android/android-stream-session-starter'
 import {
   findRunningAvdSerial,
   listAndroidDevices,
@@ -139,6 +142,23 @@ export class AndroidEmulatorBackend implements EmulatorBackend {
   async listDevices(): Promise<EmulatorDevice[]> {
     const sdk = this.sdkState.resolve()
     return sdk ? listAndroidDevices(this.runner, sdk) : []
+  }
+
+  async connectNetworkDevice(address: string): Promise<string> {
+    return connectAndroidNetworkDevice(this.runner, this.requireSdk(), address)
+  }
+
+  async listSecondaryDisplays(serial: string): Promise<AndroidDisplay[]> {
+    return listAndroidSecondaryDisplays(this.runner, this.requireSdk(), serial)
+  }
+
+  async startDisplayStream(serial: string, displayId: number): Promise<string> {
+    await this.streams.start(serial, displayId)
+    return androidStreamKey(serial, displayId)
+  }
+
+  stopDisplayStream(serial: string, displayId: number): void {
+    this.streams.stopDisplay(serial, displayId)
   }
 
   async listRunningDeviceIds(): Promise<string[] | null> {

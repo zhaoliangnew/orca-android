@@ -2,11 +2,13 @@ import { emulatorOpeningMessage } from './emulator-opening-message'
 import type { Tab } from '../../../../shared/tab-types'
 import { EmulatorPaneToolbar } from './emulator-pane-toolbar'
 import { EmulatorDeviceFrame } from './emulator-device-frame'
+import { EmulatorSecondaryDisplays } from './emulator-secondary-displays'
 import { MobileEmulatorAgentSetupGuideLayer } from './MobileEmulatorAgentSetupGuideLayer'
 import { useEmulatorPaneSession } from './use-emulator-pane-session'
 import { scrcpyDeviceIdFromStreamUrl } from './emulator-scrcpy-stream-url'
 import { useEmulatorInputCheck } from './use-emulator-input-check'
 import { useTranslate } from '@/i18n/use-translate'
+import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
 
 type EmulatorPaneProps = {
@@ -50,6 +52,7 @@ export default function EmulatorPane({ tab, worktreeId, isActive = true }: Emula
     streamKey
   )
   const visibleError = error ?? inputError
+  const androidSerial = scrcpyDeviceIdFromStreamUrl(previewUrl)
 
   return (
     <div
@@ -65,6 +68,13 @@ export default function EmulatorPane({ tab, worktreeId, isActive = true }: Emula
         onSelectDevice={(udid) => {
           setSelectedUdid(udid)
           void attach(udid)
+        }}
+        onConnectAddress={async (address) => {
+          const { id } = (await callRuntimeRpc({ kind: 'local' }, 'emulator.connectAndroidDevice', {
+            address
+          })) as { id: string }
+          setSelectedUdid(id)
+          void attach(id)
         }}
         onAttach={() => void attach(selectedUdid ?? undefined)}
         onShutdown={() => void shutdown(selectedUdid ?? undefined)}
@@ -96,6 +106,9 @@ export default function EmulatorPane({ tab, worktreeId, isActive = true }: Emula
               {t('auto.components.emulator.pane.EmulatorPane.59b08fa031', 'No emulator connected')}
             </p>
           ) : null}
+          {androidSerial ? (
+            <EmulatorSecondaryDisplays serial={androidSerial} enabled={isLive && isActive} />
+          ) : null}
           <EmulatorDeviceFrame
             previewUrl={previewUrl}
             wsUrl={wsUrl}
@@ -107,7 +120,7 @@ export default function EmulatorPane({ tab, worktreeId, isActive = true }: Emula
             isActive={isActive}
             onTap={(x, y) => void sendTap(x, y)}
             onGesture={(points) => void sendGesture(points)}
-            onStreamLost={scrcpyDeviceIdFromStreamUrl(previewUrl) ? markStreamLost : undefined}
+            onStreamLost={androidSerial ? markStreamLost : undefined}
           />
         </MobileEmulatorAgentSetupGuideLayer>
       </div>

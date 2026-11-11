@@ -70,8 +70,15 @@ describe('listAndroidDevices', () => {
         if (binary === SDK.adb && a === '-s emulator-5554 emu avd name') {
           return 'Pixel_7\nOK'
         }
-        if (binary === SDK.adb && a === '-s emulator-5554 shell getprop') {
-          return '[ro.build.version.release]: [16]\n[ro.build.version.sdk]: [36]'
+        if (binary === SDK.adb && a.startsWith('-s emulator-5554 shell getprop;')) {
+          return [
+            '[ro.build.version.release]: [16]',
+            '[ro.build.version.sdk]: [36]',
+            '[ro.serialno]: [2AD2433007442408]',
+            '[ro.product.manufacturer]: [YS]',
+            '__ORCA_DEVICE_KEY__',
+            '679765'
+          ].join('\n')
         }
         return ''
       })
@@ -83,7 +90,10 @@ describe('listAndroidDevices', () => {
       name: 'Pixel_7',
       state: 'booted',
       osVersion: '16',
-      apiLevel: '36'
+      apiLevel: '36',
+      serialNo: '2AD2433007442408',
+      vendor: 'YS',
+      deviceKey: '679765'
     })
   })
 

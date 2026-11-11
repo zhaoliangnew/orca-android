@@ -42,6 +42,8 @@ export type ScrcpyStreamOptions = {
   localJarPath: string
   localPort?: number
   maxSize?: number
+  displayId?: number
+  deviceJarPath?: string
 }
 
 export type ScrcpyControlTarget = {
@@ -101,9 +103,10 @@ export class ScrcpyStreamSession implements ScrcpyControlTarget {
   }
 
   private async deploy(): Promise<void> {
-    const { runner, sdk, serial, localJarPath } = this.options
+    const { runner, sdk, serial, localJarPath, deviceJarPath } = this.options
+    const devicePath = deviceJarPath ?? SCRCPY_DEVICE_JAR_PATH
     ensureAdbOk(
-      await runner(sdk.adb, pushScrcpyServerArgs(serial, localJarPath, SCRCPY_DEVICE_JAR_PATH)),
+      await runner(sdk.adb, pushScrcpyServerArgs(serial, localJarPath, devicePath)),
       'scrcpy server push'
     )
     const forward = ensureAdbOk(
@@ -121,11 +124,11 @@ export class ScrcpyStreamSession implements ScrcpyControlTarget {
   }
 
   private spawnServer(): void {
-    const { sdk, serial, maxSize } = this.options
+    const { sdk, serial, maxSize, displayId, deviceJarPath } = this.options
     // The command runner's timeout is unsuitable for the long-running server.
     this.server = spawnProcess({
       program: sdk.adb,
-      args: startScrcpyServerArgs(serial, { scid: this.scid, maxSize }),
+      args: startScrcpyServerArgs(serial, { scid: this.scid, maxSize, displayId, deviceJarPath }),
       stdio: ['ignore', 'pipe', 'pipe']
     })
     let serverLog = ''

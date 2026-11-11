@@ -2,6 +2,7 @@ import type { EmulatorSessionInfo } from '../emulator-types'
 import type { AndroidSdkPaths } from './android-sdk-discovery'
 import type { AndroidCommandRunner } from './android-command-runner'
 import {
+  androidStreamKey,
   androidStreamSessionInfo,
   type AndroidStreamHandle,
   type StartAndroidStream
@@ -23,42 +24,59 @@ export class AndroidStreamController {
 
   constructor(private readonly deps: AndroidStreamControllerDeps) {}
 
-  async start(serial: string): Promise<EmulatorSessionInfo> {
-    const inFlight = this.starts.get(serial)
+  async start(serial: string, displayId?: number): Promise<EmulatorSessionInfo> {
+    const key = androidStreamKey(serial, displayId)
+    const inFlight = this.starts.get(key)
     if (inFlight) {
       return inFlight
     }
-    const start = this.begin(serial)
-    this.starts.set(serial, start)
+    const start = this.begin(serial, displayId)
+    this.starts.set(key, start)
     try {
       return await start
     } finally {
-      this.starts.delete(serial)
+      this.starts.delete(key)
     }
   }
 
-  private async begin(serial: string): Promise<EmulatorSessionInfo> {
-    if (this.handles.has(serial) && scrcpyVideoRegistry.has(serial)) {
-      return androidStreamSessionInfo(serial)
+  private async begin(serial: string, displayId?: number): Promise<EmulatorSessionInfo> {
+    const key = androidStreamKey(serial, displayId)
+    if (this.handles.has(key) && scrcpyVideoRegistry.has(key)) {
+      return androidStreamSessionInfo(key)
     }
-    this.handles.delete(serial)
+    this.handles.delete(key)
     const jarPath = await this.deps.ensureJar()
     const { info, handle } = await this.deps.startStreamSession({
       runner: this.deps.runner,
       sdk: this.deps.sdk(),
       serial,
       jarPath,
-      maxSize: this.deps.maxSize
+      maxSize: this.deps.maxSize,
+      displayId
     })
-    this.handles.set(serial, handle)
+    this.handles.set(key, handle)
     return info
   }
 
+  stopDisplay(serial: string, displayId: number): void {
+    this.close(androidStreamKey(serial, displayId))
+  }
+
+  // Secondary displays share the device session, so they stop with the primary stream.
   stop(serial: string): void {
-    const handle = this.handles.get(serial)
+    for (const key of this.handles.keys()) {
+      if (key.startsWith(`${serial}#d`)) {
+        this.close(key)
+      }
+    }
+    this.close(serial)
+  }
+
+  private close(key: string): void {
+    const handle = this.handles.get(key)
     if (handle) {
       handle.close()
-      this.handles.delete(serial)
+      this.handles.delete(key)
     }
   }
 }

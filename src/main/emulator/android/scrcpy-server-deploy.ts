@@ -27,6 +27,8 @@ export type ScrcpyServerOptions = {
   videoBitRate?: number
   deviceJarPath?: string
   version?: string
+  /** leniu: mirror a secondary display (e.g. a dual-screen kiosk's HDMI panel). */
+  displayId?: number
 }
 
 export function startScrcpyServerArgs(serial: string, options: ScrcpyServerOptions): string[] {
@@ -50,6 +52,9 @@ export function startScrcpyServerArgs(serial: string, options: ScrcpyServerOptio
   }
   if (options.videoBitRate !== undefined) {
     params.push(`video_bit_rate=${options.videoBitRate}`)
+  }
+  if (options.displayId !== undefined) {
+    params.push(`display_id=${options.displayId}`)
   }
   return [
     '-s',

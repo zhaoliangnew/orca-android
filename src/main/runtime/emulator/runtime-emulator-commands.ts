@@ -8,6 +8,12 @@ import {
   type EmulatorAvailability
 } from '../../emulator/emulator-availability'
 import { RuntimeEmulatorAttach, type RuntimeEmulatorAttachParams } from './runtime-emulator-attach'
+import {
+  connectAndroidDevice,
+  listAndroidDisplays,
+  startAndroidDisplay,
+  stopAndroidDisplay
+} from './runtime-emulator-android-devices'
 import { setConfiguredAndroidSdkPath } from '../../emulator/android/android-sdk-host-discovery'
 import type { EmulatorGesturePoint } from '../../emulator/emulator-gesture-sender'
 import { assertWorktreeInputNotShadowedByDeviceHub } from '../../emulator/emulator-pane-input-check'
@@ -174,6 +180,22 @@ export class RuntimeEmulatorCommands {
 
   async emulatorAvailability(_params: { worktree?: string } = {}): Promise<EmulatorAvailability> {
     return inspectEmulatorAvailability(this.requireEmulatorBridge())
+  }
+
+  async emulatorConnectAndroidDevice(params: { address: string }) {
+    return connectAndroidDevice(this.requireEmulatorBridge(), params.address)
+  }
+
+  async emulatorListAndroidDisplays(params: { serial: string }) {
+    return listAndroidDisplays(this.requireEmulatorBridge(), params.serial)
+  }
+
+  async emulatorStartAndroidDisplay(params: { serial: string; displayId: number }) {
+    return startAndroidDisplay(this.requireEmulatorBridge(), params.serial, params.displayId)
+  }
+
+  async emulatorStopAndroidDisplay(params: { serial: string; displayId: number }) {
+    return stopAndroidDisplay(this.requireEmulatorBridge(), params.serial, params.displayId)
   }
 
   async emulatorListDevices(_params: { worktree?: string } = {}): Promise<EmulatorDevice[]> {

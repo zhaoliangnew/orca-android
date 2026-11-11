@@ -12,11 +12,17 @@ export type StartAndroidStreamParams = {
   serial: string
   jarPath: string
   maxSize?: number
+  displayId?: number
 }
 
 export type StartAndroidStream = (
   params: StartAndroidStreamParams
 ) => Promise<{ info: EmulatorSessionInfo; handle: AndroidStreamHandle }>
+
+/** leniu: secondary displays get their own registry key so video and touch IPC route per display. */
+export function androidStreamKey(serial: string, displayId?: number): string {
+  return displayId ? `${serial}#d${displayId}` : serial
+}
 
 function toArrayBuffer(buffer: Buffer): ArrayBuffer {
   const arrayBuffer = new ArrayBuffer(buffer.byteLength)
@@ -29,36 +35,40 @@ export const startAndroidStreamSession: StartAndroidStream = async ({
   sdk,
   serial,
   jarPath,
-  maxSize
+  maxSize,
+  displayId
 }) => {
+  const key = androidStreamKey(serial, displayId)
+  // A second server must not overwrite the jar the primary server has open.
+  const deviceJarPath = displayId ? `/data/local/tmp/scrcpy-server-d${displayId}.jar` : undefined
   let session: ScrcpyStreamSession | null = null
   // Register before startup so early config/keyframes enter the replay cache.
-  scrcpyVideoRegistry.register(serial, () => session?.close())
+  scrcpyVideoRegistry.register(key, () => session?.close())
   try {
     session = await ScrcpyStreamSession.start(
-      { runner, sdk, serial, localJarPath: jarPath, maxSize },
+      { runner, sdk, serial, localJarPath: jarPath, maxSize, displayId, deviceJarPath },
       {
-        onMeta: (meta) => scrcpyVideoRegistry.pushMeta(serial, meta),
+        onMeta: (meta) => scrcpyVideoRegistry.pushMeta(key, meta),
         onFrame: (frame) =>
-          scrcpyVideoRegistry.pushFrame(serial, {
+          scrcpyVideoRegistry.pushFrame(key, {
             config: frame.config,
             keyFrame: frame.keyFrame,
             pts: frame.pts.toString(),
             bytes: toArrayBuffer(frame.data)
           }),
-        onError: () => scrcpyVideoRegistry.stop(serial),
-        onClose: () => scrcpyVideoRegistry.stop(serial)
+        onError: () => scrcpyVideoRegistry.stop(key),
+        onClose: () => scrcpyVideoRegistry.stop(key)
       }
     )
   } catch (error) {
-    scrcpyVideoRegistry.stop(serial)
+    scrcpyVideoRegistry.stop(key)
     throw error
   }
-  scrcpyVideoRegistry.attachControl(serial, session)
+  scrcpyVideoRegistry.attachControl(key, session)
 
   let closed = false
   return {
-    info: androidStreamSessionInfo(serial),
+    info: androidStreamSessionInfo(key),
     handle: {
       close: () => {
         if (closed) {
@@ -66,7 +76,7 @@ export const startAndroidStreamSession: StartAndroidStream = async ({
         }
         closed = true
         session?.close()
-        scrcpyVideoRegistry.stop(serial)
+        scrcpyVideoRegistry.stop(key)
       }
     }
   }

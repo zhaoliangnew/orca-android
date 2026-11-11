@@ -148,6 +148,12 @@ export const EmulatorUnregisterActiveParams = z
   .partial()
 
 export const EmulatorListDevicesParams = z.object({ worktree: z.string().optional() }).partial()
+export const EmulatorConnectAndroidDeviceParams = z.object({ address: z.string().trim().min(1) })
+export const EmulatorAndroidDisplaysParams = z.object({ serial: z.string().min(1) })
+export const EmulatorAndroidDisplayParams = z.object({
+  serial: z.string().min(1),
+  displayId: z.number().int().min(1)
+})
 
 export const EmulatorAvailabilityParams = z.object({ worktree: z.string().optional() }).partial()
 

@@ -11,6 +11,9 @@ export type SimulatorDeviceRow = {
   availabilityError?: string
   osVersion?: string
   apiLevel?: string
+  serialNo?: string
+  vendor?: string
+  deviceKey?: string
 }
 
 export type EmulatorStreamInfo = {

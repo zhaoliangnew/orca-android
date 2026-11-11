@@ -11,6 +11,9 @@ export type RawEmulatorDevice = {
   availabilityError?: string
   osVersion?: string
   apiLevel?: string
+  serialNo?: string
+  vendor?: string
+  deviceKey?: string
 }
 
 export function toSimulatorDeviceRows(raw: RawEmulatorDevice[]): SimulatorDeviceRow[] {
@@ -21,6 +24,9 @@ export function toSimulatorDeviceRows(raw: RawEmulatorDevice[]): SimulatorDevice
     availabilityError: device.availabilityError,
     osVersion: device.osVersion,
     apiLevel: device.apiLevel,
+    serialNo: device.serialNo,
+    vendor: device.vendor,
+    deviceKey: device.deviceKey,
     udid: device.id,
     state:
       device.state === 'booted' ? 'Booted' : device.state === 'booting' ? 'Booting' : 'Shutdown',

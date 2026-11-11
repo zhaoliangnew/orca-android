@@ -42,6 +42,7 @@ export const usedDevices = defineFixture({
         devices={devices}
         selectedUdid="emulator-5554"
         onSelectDevice={() => {}}
+        onConnectAddress={async () => {}}
       />
     </div>
   ),
@@ -58,6 +59,7 @@ export const allDevices = defineFixture({
         devices={devices}
         selectedUdid="emulator-5554"
         onSelectDevice={() => {}}
+        onConnectAddress={async () => {}}
       />
     </div>
   ),

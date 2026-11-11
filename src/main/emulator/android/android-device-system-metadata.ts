@@ -5,19 +5,35 @@ import type { AndroidSdkPaths } from './android-sdk-discovery'
 import type { AndroidCommandRunner } from './android-command-runner'
 import type { EmulatorDevice } from '../backends/emulator-backend'
 
+// leniu: boards keep their activation key here; one shell call reads it alongside getprop.
+const DEVICE_KEY_MARKER = '__ORCA_DEVICE_KEY__'
+const DEVICE_SHELL_SCRIPT = `getprop; echo ${DEVICE_KEY_MARKER}; cat /sdcard/key/key.txt 2>/dev/null`
+
+function readProp(props: string, name: string): string | undefined {
+  const escaped = name.replace(/\./g, '\\.')
+  return new RegExp(`\\[${escaped}\\]: \\[([^\\]]+)\\]`).exec(props)?.[1]
+}
+
 export async function readAndroidDeviceSystemMetadata(
   device: EmulatorDevice,
   runner: AndroidCommandRunner,
   sdk: AndroidSdkPaths
-): Promise<Pick<EmulatorDevice, 'osVersion' | 'apiLevel'>> {
+): Promise<Pick<EmulatorDevice, 'osVersion' | 'apiLevel' | 'serialNo' | 'vendor' | 'deviceKey'>> {
   if (device.state === 'booted') {
-    const result = await runner(sdk.adb, ['-s', device.id, 'shell', 'getprop'], { timeoutMs: 5000 })
-    if (result.code !== 0) {
+    const result = await runner(sdk.adb, ['-s', device.id, 'shell', DEVICE_SHELL_SCRIPT], {
+      timeoutMs: 5000
+    })
+    if (result.code !== 0 && !result.stdout.includes(DEVICE_KEY_MARKER)) {
       return {}
     }
-    const osVersion = result.stdout.match(/\[ro\.build\.version\.release\]: \[([^\]]+)\]/)?.[1]
-    const apiLevel = result.stdout.match(/\[ro\.build\.version\.sdk\]: \[([^\]]+)\]/)?.[1]
-    return { osVersion, apiLevel }
+    const [props = '', keyFile = ''] = result.stdout.split(DEVICE_KEY_MARKER)
+    return {
+      osVersion: readProp(props, 'ro.build.version.release'),
+      apiLevel: readProp(props, 'ro.build.version.sdk'),
+      serialNo: readProp(props, 'ro.serialno'),
+      vendor: readProp(props, 'ro.product.manufacturer'),
+      deviceKey: keyFile.trim().split(/\r?\n/)[0]?.trim() || undefined
+    }
   }
   if (device.detail !== 'avd' || /[\\/]/.test(device.id)) {
     return {}

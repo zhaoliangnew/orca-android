@@ -6,6 +6,9 @@ import {
   AxParams,
   ButtonParams,
   EmulatorAvailabilityParams,
+  EmulatorAndroidDisplayParams,
+  EmulatorAndroidDisplaysParams,
+  EmulatorConnectAndroidDeviceParams,
   EmulatorListDevicesParams,
   EmulatorListSimulatorsParams,
   EmulatorUnregisterActiveParams,
@@ -117,6 +120,30 @@ export const EMULATOR_METHODS = [
     permission: 'workspace',
     params: EmulatorListDevicesParams,
     handler: async (params, { runtime }) => runtime.emulatorListDevices(params)
+  }),
+  defineMethod({
+    name: 'emulator.connectAndroidDevice',
+    permission: 'workspace',
+    params: EmulatorConnectAndroidDeviceParams,
+    handler: async (params, { runtime }) => runtime.emulatorConnectAndroidDevice(params)
+  }),
+  defineMethod({
+    name: 'emulator.listAndroidDisplays',
+    permission: 'workspace',
+    params: EmulatorAndroidDisplaysParams,
+    handler: async (params, { runtime }) => runtime.emulatorListAndroidDisplays(params)
+  }),
+  defineMethod({
+    name: 'emulator.startAndroidDisplay',
+    permission: 'workspace',
+    params: EmulatorAndroidDisplayParams,
+    handler: async (params, { runtime }) => runtime.emulatorStartAndroidDisplay(params)
+  }),
+  defineMethod({
+    name: 'emulator.stopAndroidDisplay',
+    permission: 'workspace',
+    params: EmulatorAndroidDisplayParams,
+    handler: async (params, { runtime }) => runtime.emulatorStopAndroidDisplay(params)
   }),
   defineMethod({
     name: 'emulator.install',

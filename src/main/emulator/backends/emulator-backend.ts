@@ -5,6 +5,7 @@ import type {
   EmulatorStreamCodec
 } from '../emulator-types'
 import type { EmulatorCodedMessage } from '../../../shared/emulator-failure-copy'
+import type { AndroidDisplay } from '../android/android-display-list'
 
 export type { EmulatorBackendKind, EmulatorStreamCodec }
 
@@ -20,6 +21,9 @@ export type EmulatorDevice = {
   availabilityError?: string
   osVersion?: string
   apiLevel?: string
+  serialNo?: string
+  vendor?: string
+  deviceKey?: string
 }
 
 export type EmulatorBackendCapabilities = {
@@ -53,6 +57,12 @@ export type EmulatorBackend = {
   listDevices(): Promise<EmulatorDevice[]>
   /** Ids of devices confirmed running now; null when the host could not answer. */
   listRunningDeviceIds?(): Promise<string[] | null>
+  /** leniu: `adb connect` a networked device by IP; returns its adb serial. */
+  connectNetworkDevice?(address: string): Promise<string>
+  /** leniu: secondary displays of a dual-screen device, each mirrored as its own stream. */
+  listSecondaryDisplays?(serial: string): Promise<AndroidDisplay[]>
+  startDisplayStream?(serial: string, displayId: number): Promise<string>
+  stopDisplayStream?(serial: string, displayId: number): void
   ownsDevice(id: string): Promise<boolean>
   resolveDeviceId(deviceOrName: string): Promise<string>
 
