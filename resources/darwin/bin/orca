@@ -22,6 +22,10 @@ CONTENTS="$APP_PATH/Contents"
 # leniu: the renamed build ("Orca Android") ships a different executable, so read it from Info.plist.
 EXECUTABLE="$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "$CONTENTS/Info.plist" 2>/dev/null || echo Orca)"
 ELECTRON="$CONTENTS/MacOS/$EXECUTABLE"
+# leniu: a renamed build keeps its data under its own name (Application Support/Orca Android).
+if [ "$EXECUTABLE" != "Orca" ] && [ -z "${ORCA_USER_DATA_PATH-}" ]; then
+	export ORCA_USER_DATA_PATH="$HOME/Library/Application Support/$EXECUTABLE"
+fi
 # The unpacked entrypoint runs directly in Electron's Node mode.
 CLI="$CONTENTS/Resources/app.asar.unpacked/out/cli/index.js"
 
