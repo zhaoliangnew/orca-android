@@ -1,4 +1,4 @@
-import { PanelsTopLeft, RefreshCw } from 'lucide-react'
+import { PanelsTopLeft } from 'lucide-react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { lazyWithRetry } from '@/lib/lazy-with-retry'
@@ -73,7 +73,6 @@ export function StatusBarSurface({
   const {
     antigravityAccounts,
     anyFetching,
-    anyVisible,
     barRef,
     canSignInFromUsageRow,
     collapseUsage,
@@ -277,29 +276,7 @@ export function StatusBarSurface({
               </DropdownMenu>
             </StatusBarUsageChangeNotices>
           ) : null}
-          {anyVisible && !isEmptyUsageState && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className="p-0.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
-                  aria-label={t(
-                    'auto.components.status.bar.StatusBar.3325d996cb',
-                    'Refresh rate limits'
-                  )}
-                >
-                  <RefreshCw
-                    size={11}
-                    className={isRefreshing || anyFetching ? 'animate-spin' : ''}
-                  />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" sideOffset={6}>
-                {t('auto.components.status.bar.StatusBar.c8857b40f7', 'Refresh usage data')}
-              </TooltipContent>
-            </Tooltip>
-          )}
+          {/* leniu: usage refresh moved to the sidebar toolbar, away from settings/help. */}
         </div>
       </div>
 
