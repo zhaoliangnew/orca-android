@@ -1,6 +1,6 @@
 import { homedir } from 'node:os'
-import { join } from 'node:path'
-import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
 import {
   findTransport,
   getRuntimeMetadataPath,
@@ -54,6 +54,15 @@ export function getPlatformUserDataPath(
   platform: NodeJS.Platform = process.platform,
   homeDir = homedir()
 ): string {
+  const base = getPlatformUserDataBase(platform, homeDir)
+  // leniu: the renamed build keeps its profile under its product name; use it while it runs.
+  const renamed = join(dirname(base), RENAMED_PRODUCT_DIR)
+  return existsSync(join(renamed, 'orca-runtime.json')) ? renamed : base
+}
+
+const RENAMED_PRODUCT_DIR = 'Orca Android'
+
+function getPlatformUserDataBase(platform: NodeJS.Platform, homeDir: string): string {
   if (platform === 'darwin') {
     return join(homeDir, 'Library', 'Application Support', 'orca')
   }
