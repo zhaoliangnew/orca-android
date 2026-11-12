@@ -50,7 +50,7 @@ export function NativeChatUsagePopup({ agent }: { agent?: string }) {
   const rows = [
     { label: '5 小时', window: limits?.session },
     { label: '每周(所有模型)', window: limits?.weekly },
-    { label: '每周 GPT-6-Astra', window: limits?.fableWeekly },
+    { label: '每周 Astra', window: limits?.fableWeekly },
     { label: '每月', window: limits?.monthly }
   ].filter((row): row is { label: string; window: RateLimitWindow } => Boolean(row.window))
   // Keeps 今天/明天 right while the popup stays open across midnight.
