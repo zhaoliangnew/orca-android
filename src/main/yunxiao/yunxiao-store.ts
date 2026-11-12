@@ -21,7 +21,8 @@ export type YunxiaoState = {
 }
 
 const TOKEN_ID = 'default'
-const orcaDir = (): string => join(homedir(), '.orca')
+// ORCA_YUNXIAO_STATE_DIR lets a dev build keep its own connection beside the installed app's.
+const orcaDir = (): string => process.env.ORCA_YUNXIAO_STATE_DIR || join(homedir(), '.orca')
 const statePath = (): string => join(orcaDir(), 'yunxiao.json')
 const tokenPath = (): string => join(orcaDir(), 'yunxiao-token.enc')
 const tokenCache = createIntegrationTokenFileCache({ service: 'Yunxiao', filePath: tokenPath })

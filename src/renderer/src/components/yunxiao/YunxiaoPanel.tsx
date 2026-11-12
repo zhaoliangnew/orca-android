@@ -17,13 +17,14 @@ import { YunxiaoCreateDialog } from './YunxiaoCreateDialog'
 import { YunxiaoPanelMenu } from './YunxiaoPanelMenu'
 import { YUNXIAO_PAGE_SIZE, YunxiaoPagination } from './YunxiaoPagination'
 import { YunxiaoWorkItemDetail } from './YunxiaoWorkItemDetail'
-import { YUNXIAO_ROW_GRID, YunxiaoWorkItemRow } from './YunxiaoWorkItemRow'
+import { YUNXIAO_COLUMNS, YUNXIAO_ROW_GRID, YunxiaoWorkItemRow } from './YunxiaoWorkItemRow'
 
 // 本周计划 is the page's own view: work whose plan dates touch this (Beijing) week.
-type PanelFilter = YunxiaoListFilter | 'week'
+type PanelFilter = YunxiaoListFilter | 'week' | 'lastWeek'
 
 const FILTERS: { id: PanelFilter; label: string }[] = [
   { id: 'week', label: '本周计划' },
+  { id: 'lastWeek', label: '上周计划' },
   { id: 'open', label: '未完成' },
   { id: 'done', label: '已完成' },
   { id: 'all', label: '全部' }
@@ -60,6 +61,17 @@ function Chip({
   )
 }
 
+const WEEK_MS = 7 * 24 * 60 * 60_000
+
+/** The plan week a filter shows (this or last, Beijing calendar), or null for status filters. */
+function weekOf(filter: PanelFilter): { start: string; end: string } | null {
+  return filter === 'week'
+    ? yunxiaoWeekRange()
+    : filter === 'lastWeek'
+      ? yunxiaoWeekRange(Date.now() - WEEK_MS)
+      : null
+}
+
 function filterYunxiaoItems(
   items: YunxiaoWorkItem[],
   options: {
@@ -70,7 +82,7 @@ function filterYunxiaoItems(
   }
 ): YunxiaoWorkItem[] {
   const keyword = options.keyword.trim().toLowerCase()
-  const week = options.filter === 'week' ? yunxiaoWeekRange() : null
+  const week = weekOf(options.filter)
   const matches = items.filter(
     (item) =>
       (week
@@ -92,14 +104,14 @@ function filterYunxiaoItems(
     : matches
 }
 
-/** 本周计划's dates (Monday to Sunday, Beijing calendar), inside its chip. */
-function WeekRangeHint() {
-  const [week] = useState(() => yunxiaoWeekRange())
-  return (
+/** A plan week's dates (Monday to Sunday, Beijing calendar), inside its chip. */
+function WeekRangeHint({ filter }: { filter: PanelFilter }) {
+  const [week] = useState(() => weekOf(filter))
+  return week ? (
     <span className="ml-1 text-muted-foreground" title="周一到周日，按北京时间">
       {week.start.slice(5)}~{week.end.slice(5)}
     </span>
-  )
+  ) : null
 }
 
 /** leniu: the tasks page's Yunxiao (云效) view — my work items across the watched projects. */
@@ -108,13 +120,14 @@ export function YunxiaoPanel() {
   const links = useYunxiaoPage((s) => s.links)
   const refreshStatus = useYunxiaoPage((s) => s.refreshStatus)
   const refreshLinks = useYunxiaoPage((s) => s.refreshLinks)
-  const [filter, setFilter] = useState<PanelFilter>('open')
+  const [filter, setFilter] = useState<PanelFilter>('week')
   const [category, setCategory] = useState<YunxiaoCategory | 'any'>('Task')
   const [projectId, setProjectId] = useState<string | null>(null)
   const [keyword, setKeyword] = useState('')
   const allItems = useYunxiaoPage((s) => s.items)
   const loading = useYunxiaoPage((s) => s.loading)
   const loadItems = useYunxiaoPage((s) => s.loadItems)
+  const patchItem = useYunxiaoPage((s) => s.patchItem)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [page, setPage] = useState(1)
@@ -176,7 +189,9 @@ export function YunxiaoPanel() {
             }}
           >
             {entry.label}
-            {entry.id === 'week' && filter === 'week' ? <WeekRangeHint /> : null}
+            {entry.id === filter && (filter === 'week' || filter === 'lastWeek') ? (
+              <WeekRangeHint filter={filter} />
+            ) : null}
           </Chip>
         ))}
         <span className="mx-1 h-4 w-px bg-border/60" />
@@ -232,21 +247,19 @@ export function YunxiaoPanel() {
         </div>
       </div>
       <div className="flex min-h-0 flex-1 gap-3 overflow-hidden rounded-md border border-border/50 bg-muted/30">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        {/* Nine columns: the table scrolls sideways when the detail pane narrows it. */}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-auto scrollbar-sleek">
           <div
             className={cn(
               YUNXIAO_ROW_GRID,
               'h-8 shrink-0 border-b border-border/50 px-3 text-xs text-muted-foreground'
             )}
           >
-            <span>编号</span>
-            <span>类型</span>
-            <span>标题</span>
-            <span>状态</span>
-            <span>项目</span>
-            <span className="text-right">计划完成</span>
+            {YUNXIAO_COLUMNS.map((column) => (
+              <span key={column}>{column}</span>
+            ))}
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto p-1 scrollbar-sleek">
+          <div className="min-h-0 w-max min-w-full flex-1 overflow-y-auto p-1 scrollbar-sleek">
             {items.length === 0 ? (
               <div className="p-6 text-center text-xs text-muted-foreground">
                 {loading ? `正在查询 ${projects.length} 个项目…` : '没有符合条件的工作项'}
@@ -259,6 +272,7 @@ export function YunxiaoPanel() {
                   selected={item.id === selectedId}
                   linked={linkedIds.has(item.id)}
                   onSelect={() => setSelectedId(item.id)}
+                  onChanged={patchItem}
                 />
               ))
             )}
@@ -268,9 +282,15 @@ export function YunxiaoPanel() {
         {selectedId ? (
           <div className="flex w-[min(28rem,45%)] shrink-0 flex-col border-l border-border/50">
             <YunxiaoWorkItemDetail
+              // A change made from the list (status, dates) re-reads the detail.
+              key={`${selectedId}:${allItems.find((entry) => entry.id === selectedId)?.updatedAt ?? 0}`}
               workItemId={selectedId}
-              onChanged={() => {
-                void load(false)
+              onChanged={(changed) => {
+                if (changed) {
+                  patchItem(changed)
+                } else {
+                  void load(false)
+                }
                 void refreshLinks()
               }}
             />

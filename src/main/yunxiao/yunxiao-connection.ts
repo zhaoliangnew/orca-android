@@ -10,7 +10,7 @@ import {
 } from './yunxiao-store'
 
 type Raw = Record<string, unknown>
-const SCAN_CONCURRENCY = 6
+const SCAN_CONCURRENCY = 16
 
 export function yunxiaoStatus(): YunxiaoConnectionStatus {
   const state = readYunxiaoState()
@@ -67,31 +67,13 @@ export function yunxiaoDisconnect(): YunxiaoConnectionStatus {
   return yunxiaoStatus()
 }
 
-/** Every project the user takes part in (Yunxiao pages at 200). */
-export async function listParticipatedProjects(): Promise<YunxiaoProject[]> {
-  const userId = readYunxiaoState().user?.id
-  if (!userId) {
-    throw new YunxiaoApiError('云效未连接。', 401)
-  }
-  const conditions = {
-    conditionGroups: [
-      [
-        {
-          className: 'user',
-          fieldIdentifier: 'users',
-          format: 'multiList',
-          operator: 'CONTAINS',
-          value: [userId]
-        }
-      ]
-    ]
-  }
+async function searchProjects(extraConditions?: Raw): Promise<YunxiaoProject[]> {
   const projects: YunxiaoProject[] = []
-  for (let page = 1; page <= 10; page++) {
+  for (let page = 1; page <= 20; page++) {
     const { body, headers } = await yunxiaoFetch<Raw[]>(projexPath('/projects:search'), {
       method: 'POST',
       body: {
-        extraConditions: JSON.stringify(conditions),
+        ...(extraConditions ? { extraConditions: JSON.stringify(extraConditions) } : {}),
         page,
         perPage: 200,
         orderBy: 'gmtCreate',
@@ -110,6 +92,40 @@ export async function listParticipatedProjects(): Promise<YunxiaoProject[]> {
     }
   }
   return projects
+}
+
+/** Every project the user takes part in (Yunxiao pages at 200). */
+export async function listParticipatedProjects(): Promise<YunxiaoProject[]> {
+  const userId = readYunxiaoState().user?.id
+  if (!userId) {
+    throw new YunxiaoApiError('云效未连接。', 401)
+  }
+  return searchProjects({
+    conditionGroups: [
+      [
+        {
+          className: 'user',
+          fieldIdentifier: 'users',
+          format: 'multiList',
+          operator: 'CONTAINS',
+          value: [userId]
+        }
+      ]
+    ]
+  })
+}
+
+/**
+ * Work can be assigned in projects the user is not a member of, so the scan covers every project
+ * the token can see (public ones plus the user's own).
+ */
+async function listScannableProjects(): Promise<YunxiaoProject[]> {
+  const [all, mine] = await Promise.all([searchProjects(), listParticipatedProjects()])
+  const byId = new Map(all.map((project) => [project.id, project]))
+  for (const project of mine) {
+    byId.set(project.id, project)
+  }
+  return [...byId.values()]
 }
 
 async function countAssigned(projectId: string, userId: string): Promise<number> {
@@ -145,7 +161,7 @@ export async function scanWatchedProjects(): Promise<YunxiaoConnectionStatus> {
   if (!userId) {
     throw new YunxiaoApiError('云效未连接。', 401)
   }
-  const projects = await listParticipatedProjects()
+  const projects = await listScannableProjects()
   const watched: YunxiaoProject[] = []
   for (let index = 0; index < projects.length; index += SCAN_CONCURRENCY) {
     const batch = projects.slice(index, index + SCAN_CONCURRENCY)

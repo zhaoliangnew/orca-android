@@ -32,6 +32,11 @@ function customField(raw: Raw, match: (field: Raw) => boolean): string | null {
   return null
 }
 
+function hours(value: string | null): number | null {
+  const parsed = value === null ? Number.NaN : Number(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 export function mapWorkItem(raw: Raw): YunxiaoWorkItem {
   const type = asRecord(raw.workitemType)
   const status = asRecord(raw.status)
@@ -63,6 +68,8 @@ export function mapWorkItem(raw: Raw): YunxiaoWorkItem {
     priority: customField(raw, (field) => field.fieldId === 'priority'),
     startAt: customField(raw, (field) => field.fieldName === '计划开始时间'),
     dueAt: customField(raw, (field) => field.fieldName === '计划完成时间'),
+    estimateHours: hours(customField(raw, (field) => field.fieldId === 'sumPlanedLaborHour')),
+    actualHours: hours(customField(raw, (field) => field.fieldId === 'sumActualLaborHour')),
     createdAt: asNumber(raw.gmtCreate),
     updatedAt: asNumber(raw.gmtModified),
     url: yunxiaoWorkItemUrl(category, serialNumber)

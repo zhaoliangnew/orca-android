@@ -49,6 +49,8 @@ type YunxiaoPageState = {
   refreshLinks: () => Promise<void>
   /** Reloads from Yunxiao; `ifStale` skips a recent list. */
   loadItems: (options?: { ifStale?: boolean }) => Promise<void>
+  /** Swaps in an item just changed (status, dates) without reloading every project. */
+  patchItem: (item: YunxiaoWorkItem) => void
   /** Re-finds the watched projects once a day, then reloads the list. */
   rescanIfDue: () => Promise<void>
 }
@@ -89,6 +91,12 @@ export const useYunxiaoPage = create<YunxiaoPageState>((set, get) => ({
         set({ loading: false })
       }
     }
+  },
+  patchItem: (item) => {
+    const { items, loadedAt } = get()
+    const next = items.map((entry) => (entry.id === item.id ? { ...entry, ...item } : entry))
+    set({ items: next })
+    writeCache({ items: next, loadedAt })
   },
   rescanIfDue: async () => {
     const status = get().status

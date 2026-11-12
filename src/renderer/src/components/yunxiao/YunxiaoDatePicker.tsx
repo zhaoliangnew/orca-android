@@ -25,12 +25,15 @@ function monthGrid(year: number, month: number): Date[] {
 export function YunxiaoDatePicker({
   value,
   disabled,
-  onChange
+  onChange,
+  compact = false
 }: {
   /** YYYY-MM-DD..., or null when unset. */
   value: string | null
   disabled: boolean
   onChange: (date: string) => void
+  /** A bare table cell: no icon or border, -- when unset. */
+  compact?: boolean
 }) {
   const selected = parseIso(value)
   const [open, setOpen] = useState(false)
@@ -63,15 +66,23 @@ export function YunxiaoDatePicker({
         <button
           type="button"
           disabled={disabled}
-          className="flex h-7 items-center gap-1.5 rounded-md border border-border/50 px-2 text-xs hover:bg-accent/50 disabled:opacity-50"
+          onClick={(event) => event.stopPropagation()}
+          className={cn(
+            'flex h-7 items-center gap-1.5 rounded-md px-2 text-xs disabled:opacity-50',
+            compact ? 'tabular-nums hover:bg-accent' : 'border border-border/50 hover:bg-accent/50'
+          )}
         >
-          <CalendarDays className="size-3.5 text-muted-foreground" />
+          {compact ? null : <CalendarDays className="size-3.5 text-muted-foreground" />}
           <span className={cn(!selectedIso && 'text-muted-foreground')}>
-            {selectedIso ?? '未设置'}
+            {selectedIso ?? (compact ? '--' : '未设置')}
           </span>
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-64 p-2">
+      <PopoverContent
+        align="start"
+        className="w-64 p-2"
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className="mb-1 flex items-center justify-between">
           <button
             type="button"

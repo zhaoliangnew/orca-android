@@ -28,6 +28,9 @@ export type YunxiaoWorkItem = {
   /** 计划开始时间 / 计划完成时间, as Yunxiao formats them (YYYY-MM-DD HH:mm:ss). */
   startAt: string | null
   dueAt: string | null
+  /** 预计/实际工时汇总 (hours), as Yunxiao sums its effort records. */
+  estimateHours: number | null
+  actualHours: number | null
   createdAt: number
   updatedAt: number
   url: string

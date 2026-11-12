@@ -3,27 +3,25 @@ import { ExternalLink, FolderPlus, MessageSquareShare, Send } from 'lucide-react
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import { useAppStore } from '@/store'
 import { openAppHttpLink } from '@/lib/browser/navigation/app-http-link-open'
 import { yunxiaoClient } from '@/runtime/yunxiao/runtime-yunxiao-client'
 import {
   yunxiaoCategoryLabel,
   type YunxiaoComment,
-  type YunxiaoStatus,
   type YunxiaoWorkItemDetail as Detail
 } from '../../../../shared/yunxiao/yunxiao-types'
 import { sendYunxiaoWorkItemToChat } from './yunxiao-send-to-chat'
 import { YunxiaoSubmitTestDialog } from './YunxiaoSubmitTestDialog'
 import { yunxiaoDescriptionText } from './yunxiao-description'
-import { YunxiaoDatePicker } from './YunxiaoDatePicker'
+import { YunxiaoBaseFields } from './YunxiaoBaseFields'
 import { YunxiaoEffortSection } from './YunxiaoEffortSection'
+
+function formatFullTime(ms: number): string {
+  const date = new Date(ms)
+  const pad = (value: number): string => String(value).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
 
 function formatCommentTime(ms: number): string {
   const date = new Date(ms)
@@ -34,59 +32,39 @@ function formatCommentTime(ms: number): string {
 const errorText = (error: unknown): string =>
   error instanceof Error ? error.message : String(error)
 
-function Meta({ label, value }: { label: string; value: string | null | undefined }) {
-  return value ? (
-    <div className="flex gap-2 text-xs">
-      <span className="w-16 shrink-0 text-muted-foreground">{label}</span>
-      <span className="min-w-0 truncate">{value}</span>
-    </div>
-  ) : null
-}
-
-function PlanDateRow({
-  label,
-  value,
-  disabled,
-  onChange
-}: {
-  label: string
-  value: string | null
-  disabled: boolean
-  onChange: (date: string) => void
-}) {
-  return (
-    <div className="flex items-center gap-2 text-xs">
-      <span className="w-16 shrink-0 text-muted-foreground">{label}</span>
-      <YunxiaoDatePicker value={value} disabled={disabled} onChange={onChange} />
-    </div>
-  )
-}
-
 /** leniu: one Yunxiao work item — status, description, comments and what to do with it. */
 export function YunxiaoWorkItemDetail({
   workItemId,
   onChanged
 }: {
   workItemId: string
-  onChanged: () => void
+  /** With the changed item for an in-place list update; without one the list reloads. */
+  onChanged: (item?: Detail) => void
 }) {
   const [item, setItem] = useState<Detail | null>(null)
   const [comments, setComments] = useState<YunxiaoComment[]>([])
-  const [statuses, setStatuses] = useState<YunxiaoStatus[]>([])
+  const [parentSubject, setParentSubject] = useState<string | null>(null)
   const [comment, setComment] = useState('')
   const [busy, setBusy] = useState(false)
   const [submitTestOpen, setSubmitTestOpen] = useState(false)
   const openModal = useAppStore((s) => s.openModal)
 
   const load = useCallback(async () => {
-    const [detail, list, options] = await Promise.all([
+    const [detail, list] = await Promise.all([
       yunxiaoClient.get(workItemId),
-      yunxiaoClient.comments(workItemId).catch(() => []),
-      yunxiaoClient.statuses(workItemId).catch(() => [])
+      yunxiaoClient.comments(workItemId).catch(() => [])
     ])
     setItem(detail)
     setComments(list)
-    setStatuses(options)
+    // The requirement a task or bug hangs under, as Yunxiao shows above the title.
+    setParentSubject(
+      detail.parentId
+        ? await yunxiaoClient
+            .get(detail.parentId)
+            .then((parent) => parent.subject)
+            .catch(() => null)
+        : null
+    )
   }, [workItemId])
 
   useEffect(() => {
@@ -116,6 +94,15 @@ export function YunxiaoWorkItemDetail({
           {yunxiaoCategoryLabel(item.category)} · {item.serialNumber}
         </div>
         <div className="text-base font-medium leading-snug">{item.subject}</div>
+        {parentSubject ? (
+          <div className="truncate text-xs text-muted-foreground" title={parentSubject}>
+            所属需求：{parentSubject}
+          </div>
+        ) : null}
+        <div className="text-xs text-muted-foreground">
+          {item.creator?.name ?? ''} {formatFullTime(item.createdAt)} 创建
+          {item.updatedAt ? `，${formatFullTime(item.updatedAt)} 更新` : ''}
+        </div>
       </div>
       <div className="flex flex-wrap gap-2">
         <Button
@@ -160,60 +147,23 @@ export function YunxiaoWorkItemDetail({
           云效打开
         </Button>
       </div>
-      <div className="flex flex-col gap-1.5 rounded-md border border-border/50 p-3">
-        <div className="flex items-center gap-2 text-xs">
-          <span className="w-16 shrink-0 text-muted-foreground">状态</span>
-          <Select
-            value={item.status.id}
-            disabled={busy || statuses.length === 0}
-            onValueChange={(status) =>
-              void run(async () => {
-                setItem(await yunxiaoClient.setStatus(item.id, status))
-                onChanged()
-              })
-            }
-          >
-            <SelectTrigger size="sm" className="h-7 w-40 text-xs">
-              <SelectValue>{item.status.name}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {statuses.map((status) => (
-                <SelectItem key={status.id} value={status.id}>
-                  {status.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Meta label="项目" value={item.space.name} />
-        <Meta label="负责人" value={item.assignedTo?.name} />
-        <Meta label="创建人" value={item.creator?.name} />
-        <Meta label="迭代" value={item.sprint?.name} />
-        <Meta label="优先级" value={item.priority} />
-        <PlanDateRow
-          label="计划开始"
-          value={item.startAt}
-          disabled={busy}
-          onChange={(start) =>
-            void run(async () => {
-              setItem(await yunxiaoClient.setPlanDates(item.id, { start }))
-              onChanged()
-            })
-          }
-        />
-        <PlanDateRow
-          label="计划完成"
-          value={item.dueAt}
-          disabled={busy}
-          onChange={(due) =>
-            void run(async () => {
-              setItem(await yunxiaoClient.setPlanDates(item.id, { due }))
-              onChanged()
-            })
-          }
-        />
-      </div>
-      <YunxiaoEffortSection workItemId={item.id} />
+      <YunxiaoBaseFields
+        item={item}
+        onChanged={(next) => {
+          setItem(next)
+          onChanged(next)
+        }}
+      />
+      <YunxiaoEffortSection
+        workItemId={item.id}
+        // Hours feed the list's 工时 columns: re-read the item once they change.
+        onChanged={() =>
+          void yunxiaoClient
+            .get(item.id)
+            .then(onChanged)
+            .catch(() => undefined)
+        }
+      />
       <div className="flex flex-col gap-1">
         <div className="text-xs font-medium">描述</div>
         <div className="whitespace-pre-wrap break-words text-sm text-foreground/90">
@@ -257,7 +207,7 @@ export function YunxiaoWorkItemDetail({
         open={submitTestOpen}
         onOpenChange={setSubmitTestOpen}
         requirement={item}
-        onDone={onChanged}
+        onDone={() => onChanged()}
       />
     </div>
   )
