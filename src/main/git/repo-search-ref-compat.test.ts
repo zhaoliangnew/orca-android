@@ -44,8 +44,11 @@ describe('searchBaseRefs git compatibility', () => {
 
     await expect(searchBaseRefs('/repo', '', 1)).resolves.toEqual(['origin/main'])
     await expect(searchBaseRefs('/repo', '', 1)).resolves.toEqual(['origin/main'])
+    // leniu: an empty search also lists recent tags in a call of its own.
     const forEachRefCalls = gitExecFileAsyncMock.mock.calls.filter(
-      (call) => (call[0] as string[])[0] === 'for-each-ref'
+      (call) =>
+        (call[0] as string[])[0] === 'for-each-ref' &&
+        !(call[0] as string[]).some((arg) => arg.startsWith('refs/tags'))
     )
     expect(forEachRefCalls).toHaveLength(3)
     expect(

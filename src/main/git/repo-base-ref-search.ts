@@ -77,7 +77,7 @@ export async function searchBaseRefDetails(
     const tokens = getRefSearchTokens(normalizedQuery)
     if (tokens.length > 1) {
       const results = await Promise.all([search('segmented'), search('branchRoot')])
-      return mergeBaseRefSearchResultGroups(
+      const merged = mergeBaseRefSearchResultGroups(
         results.map((entry) =>
           parseAndFilterSearchRefDetails(
             entry.stdout,
@@ -88,17 +88,50 @@ export async function searchBaseRefDetails(
         ),
         boundedScanLimit
       )
+      return [...merged, ...(await listRecentTags(path, normalizedQuery, merged, git))]
     }
 
     const result = await search()
-    return parseAndFilterSearchRefDetails(
+    const refs = parseAndFilterSearchRefDetails(
       result.stdout,
       boundedScanLimit,
       remotes,
       includeQualifiedRefs
     )
+    // leniu: tags come from their own newest-first query (branch dates leave annotated tags last).
+    return [...refs, ...(await listRecentTags(path, normalizedQuery, refs, git))]
   } catch (err) {
     console.warn('[searchBaseRefs] for-each-ref failed', { path, err })
+    return []
+  }
+}
+
+const RECENT_TAG_COUNT = 10
+
+/** The newest tags (by creation) matching the query; every token must appear, in order. */
+async function listRecentTags(
+  path: string,
+  query: string,
+  listed: readonly BaseRefSearchResult[],
+  git: LocalGitExecOptions
+): Promise<BaseRefSearchResult[]> {
+  const match = getRefSearchTokens(query).join('*')
+  try {
+    const { stdout } = await gitExecFileAsync(
+      [
+        'for-each-ref',
+        '--format=%(refname)%00%(refname:short)',
+        '--sort=-creatordate',
+        `--count=${RECENT_TAG_COUNT}`,
+        ...(match ? [`refs/tags/*${match}*`, `refs/tags/**/*${match}*`] : ['refs/tags'])
+      ],
+      gitExecOptions(path, git)
+    )
+    const seen = new Set(listed.map((ref) => ref.refName))
+    return parseAndFilterSearchRefDetails(stdout, RECENT_TAG_COUNT).filter(
+      (ref) => !seen.has(ref.refName)
+    )
+  } catch {
     return []
   }
 }

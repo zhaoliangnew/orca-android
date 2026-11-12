@@ -312,5 +312,11 @@ export function buildSmartWorkspaceSourceRows({
   if (mode === 'jira') {
     nextRows.push(...jiraIssues.map(toJiraSourceRow))
   }
-  return nextRows.slice(0, resultLimit + 1)
+  // leniu: tags (newest ten) list beside the page of other results instead of sharing its limit.
+  const isTag = (row: SmartWorkspaceSourceRow): boolean =>
+    row.kind === 'branch' && row.refKind === 'tag'
+  return [
+    ...nextRows.filter((row) => !isTag(row)).slice(0, resultLimit + 1),
+    ...nextRows.filter(isTag)
+  ]
 }

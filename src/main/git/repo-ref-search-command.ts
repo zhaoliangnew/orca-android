@@ -72,9 +72,7 @@ export function buildSearchBaseRefsArgv(
         `refs/heads/**/*${query}*`,
         `refs/heads/**/*${query}*/**`,
         `refs/remotes/**/*${query}*`,
-        `refs/remotes/**/*${query}*/**`,
-        // leniu: tags can start a workspace too.
-        `refs/tags/**/*${query}*`
+        `refs/remotes/**/*${query}*/**`
       ].filter((pattern) => options.namespace !== 'remote' || pattern.startsWith('refs/remotes/'))
     ]
   }
@@ -88,15 +86,10 @@ export function buildSearchBaseRefsArgv(
           `refs/remotes/${remote}/${substringQuery}*/**`
         ])
       : [`refs/remotes/*/${substringQuery}*`, `refs/remotes/*/${substringQuery}*/**`]
-  const segmentedPatterns = [
-    `refs/remotes/${segmented}`,
-    `refs/heads/${segmented}`,
-    `refs/tags/${segmented}`
-  ]
+  const segmentedPatterns = [`refs/remotes/${segmented}`, `refs/heads/${segmented}`]
   const branchRootPatterns = [
     `refs/heads/${substringQuery}*`,
     `refs/heads/${substringQuery}*/**`,
-    `refs/tags/${substringQuery}*`,
     ...remoteBranchRootPatterns
   ]
   const patterns =

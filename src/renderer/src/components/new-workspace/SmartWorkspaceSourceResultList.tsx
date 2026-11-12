@@ -9,6 +9,9 @@ import { RowIcon, RowLabel } from './smart-workspace-source-row-content'
 import type { RowEntry } from './smart-workspace-name-field-model'
 import type { WorkItemSourceSearch } from './use-work-item-source-search'
 
+// Version numbers, not words: a fixed locale orders them the same everywhere.
+const VERSION_ORDER = new Intl.Collator('en', { numeric: true })
+
 type RefGroup = { heading?: string; rows: RowEntry[] }
 
 /** leniu: branch results split into 本地分支 / 远程分支 / 标签; other sources stay one ungrouped list. */
@@ -32,7 +35,16 @@ function groupRefRows(rows: RowEntry[]): RefGroup[] {
     { rows: others },
     { heading: '本地分支', rows: local },
     { heading: '远程分支', rows: remote },
-    { heading: '标签', rows: tags }
+    // Newest version first: 5.87.0.1 above 5.17.0.0.
+    {
+      heading: '标签',
+      rows: tags.sort((a, b) =>
+        VERSION_ORDER.compare(
+          b.kind === 'branch' ? b.refName : '',
+          a.kind === 'branch' ? a.refName : ''
+        )
+      )
+    }
   ].filter((group) => group.rows.length > 0)
 }
 
