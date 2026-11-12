@@ -92,3 +92,8 @@
     }
   }
 }
+
+/* leniu: looser body lines, as Android Dev's chat (1.75). */
+.native-chat-markdown :where(p, li) {
+  line-height: 1.75;
+}

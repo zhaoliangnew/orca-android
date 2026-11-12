@@ -66,7 +66,7 @@ export function NativeChatWorkingStatus({
   const label = turnStatusLabel(key, duration, t)
   // `tabular-nums`: the live clock reflows its own label every second otherwise.
   const className =
-    'flex min-h-8 items-center gap-1 border-b border-border text-sm text-chat-foreground-faint tabular-nums'
+    'flex min-h-8 items-center gap-1 text-sm text-chat-foreground-faint tabular-nums'
   const caret =
     workedSeconds != null && onToggleExpanded ? (
       <ChevronRight
@@ -102,7 +102,8 @@ export function NativeChatWorkingStatus({
   const active = workedSeconds == null
   return (
     <div
-      className={className}
+      // leniu: a finished turn with no steps to open hides its 工作了 Ns line.
+      className={cn(className, !active && 'hidden')}
       data-native-chat-turn-status={active ? 'active' : 'settled'}
       // Once settled, screen readers read the visible "Worked for…" text instead.
       aria-label={

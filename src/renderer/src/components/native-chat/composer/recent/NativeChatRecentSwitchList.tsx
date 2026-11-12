@@ -30,9 +30,9 @@ function formatRecentVisit(at: number | undefined, now = Date.now()): string {
 }
 const ROW_HEIGHT_PX = 26
 const ROW_GRID =
-  'grid grid-cols-[52px_minmax(0,0.8fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_76px] items-center gap-2'
+  'grid grid-cols-[64px_minmax(0,0.8fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_76px] items-center gap-2'
 const STATUS_CLASS: Partial<Record<WorktreeStatus, string>> = {
-  working: 'text-amber-500',
+  working: 'text-sky-500',
   permission: 'text-orange-500',
   done: 'text-emerald-500',
   failed: 'text-destructive',
@@ -43,7 +43,7 @@ function SwitchRowCells({ row, trailing }: { row: RecentSwitchRow; trailing: Rea
   const t = useTranslate()
   return (
     <>
-      <span className={cn('truncate', row.current && 'font-medium text-primary')}>
+      <span className={cn('truncate', row.current && 'font-medium text-emerald-500')}>
         {row.current ? t('recentSwitch.current', 'Current') : formatRecentVisit(row.visitedAt)}
       </span>
       <span className="truncate text-right">{row.group}</span>
@@ -51,10 +51,10 @@ function SwitchRowCells({ row, trailing }: { row: RecentSwitchRow; trailing: Rea
         <span className="truncate font-medium text-chat-foreground">
           {row.alias ?? row.product}
         </span>
-        {row.alias && <span className="truncate text-xs">{row.product}</span>}
+        {row.alias && <span className="truncate text-2xs">{row.product}</span>}
       </span>
       <span className="flex min-w-0 items-center gap-1.5">
-        <span className="shrink-0 rounded bg-foreground/10 px-1 text-3xs leading-3.5">
+        <span className="shrink-0 rounded bg-foreground/10 px-1 text-3xs leading-3.5 group-hover/recent:bg-emerald-500/20 group-hover/recent:text-emerald-400">
           {row.isMain ? t('projectOverview.main', 'Main') : 'tree'}
         </span>
         <span className="truncate">{row.branch}</span>
@@ -64,16 +64,26 @@ function SwitchRowCells({ row, trailing }: { row: RecentSwitchRow; trailing: Rea
   )
 }
 
-const ROW_CLASS = 'h-6 shrink-0 rounded-md px-2 text-left text-sm text-chat-foreground-faint'
+const ROW_CLASS = 'h-6 shrink-0 rounded-md px-2 text-left text-xs text-chat-foreground-faint'
 
 // The current row hosts the 快捷指令 menu, so it is a plain container rather than a button.
 function CurrentRow({ row }: { row: RecentSwitchRow }) {
+  const status = useAppStore(
+    (state) =>
+      selectWorktreeActivityStatuses(state, [row.worktree.id]).get(row.worktree.id) ?? 'inactive'
+  )
   return (
     <div className={cn(ROW_GRID, ROW_CLASS, 'text-foreground')}>
       <SwitchRowCells
         row={row}
         trailing={
-          <span className="flex justify-end">
+          <span className="flex items-center justify-end gap-2">
+            {/* As Android Dev: the current workspace's state (进行中) before 快捷指令. */}
+            {STATUS_CLASS[status] ? (
+              <span className={cn('whitespace-nowrap', STATUS_CLASS[status])}>
+                {getWorktreeStatusLabel(status)}
+              </span>
+            ) : null}
             <NativeChatQuickPromptsMenu />
           </span>
         }
@@ -95,7 +105,7 @@ export function RecentRow({ row, status }: { row: RecentSwitchRow; status: Workt
       className={cn(
         ROW_GRID,
         ROW_CLASS,
-        'group/recent cursor-pointer hover:bg-accent/60 hover:text-foreground'
+        'group/recent cursor-pointer hover:text-emerald-500 [&_*]:group-hover/recent:text-emerald-500'
       )}
       onClick={open}
       onKeyDown={(event) => {

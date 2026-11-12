@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { create } from 'zustand'
+import './leniu-composer-tools.css'
 import { ChartColumn, History, SquarePen } from 'lucide-react'
 import { useAppStore } from '@/store'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -59,7 +60,7 @@ export function NativeChatLeniuToolsSource({
 
 // Small text buttons, as in Android Dev's composer bar.
 const TOOL_TEXT =
-  'flex h-6 shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap rounded-md px-1.5 text-sm text-chat-foreground-faint transition-colors hover:bg-accent/60 hover:text-chat-foreground disabled:cursor-default disabled:opacity-50'
+  'flex h-6 shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap rounded-md px-1.5 leniu-tool-text text-chat-foreground transition-colors hover:bg-accent/60 hover:text-chat-foreground-strong disabled:cursor-default disabled:opacity-50'
 
 function ToolPopover({
   icon,

@@ -171,7 +171,8 @@ export const NativeChatComposerActions = memo(function NativeChatComposerActions
       onClick={handleCriticalAction}
       variant={stops ? 'secondary' : 'default'}
       size="icon"
-      className="size-8 rounded-full pointer-coarse:size-10"
+      // leniu: Android Dev's blue send/stop button.
+      className="size-8 rounded-full bg-blue-600 text-white hover:bg-blue-500 disabled:bg-muted disabled:text-muted-foreground pointer-coarse:size-10"
     >
       {stops ? <Square className="size-3.5 fill-current" /> : <ArrowUp className="size-4" />}
     </Button>

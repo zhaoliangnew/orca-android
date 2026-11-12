@@ -311,7 +311,7 @@ export function NativeChatComposerField({
           <div
             className={cn(
               // Use a constant container border so focus changes cannot flash it.
-              'group/composer rounded-xl border p-1.5 shadow-xs',
+              'group/composer rounded-2xl border p-2 shadow-xs',
               !launch && 'native-chat-composer-card',
               launch
                 ? 'border-foreground/10 bg-background dark:bg-foreground/[0.04]'

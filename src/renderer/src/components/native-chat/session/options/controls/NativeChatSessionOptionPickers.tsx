@@ -102,8 +102,8 @@ function PickerTrigger(props: {
             size="xs"
             aria-label={props.accessibleName}
             disabled={props.disabled}
-            // leniu: 13px, level with 最近/用量/压缩/新会话 beside it.
-            className="max-w-64 text-sm"
+            // leniu: 12px, level with 最近/用量/压缩/新会话 beside it.
+            className="max-w-64 leniu-tool-text"
             onKeyDown={props.onKeyDown}
           >
             <span data-composer-label className="flex min-w-0 items-center gap-1">

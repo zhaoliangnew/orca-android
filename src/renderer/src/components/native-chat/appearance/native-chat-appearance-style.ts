@@ -71,7 +71,8 @@ export function nativeChatContrastMix(contrast: number, light: boolean): number 
   const value = Number.isFinite(contrast) ? Math.min(150, Math.max(50, contrast)) : 100
   return light
     ? Math.min(100, Math.max(55, 82 + (value - 100) * 0.36))
-    : Math.min(100, Math.max(50, 78 + (value - 100) * 0.44))
+    : // leniu: dark body text near-white by default, as Android Dev's chat (95%).
+      Math.min(100, Math.max(50, 94 + (value - 100) * 0.44))
 }
 
 /** Chat surfaces in the terminal's colors; the app theme already paints them under Match Terminal. */
@@ -141,7 +142,7 @@ function applyTerminalChatColors(
     '--chat-inline-code-base': light ? 'var(--chat-canvas)' : 'transparent',
     '--chat-inline-code-border-mix': light ? '9%' : '8%',
     // leniu: a lighter dark-mode composer, matching Android Dev's 12% foreground wash.
-    '--chat-composer-mix': light ? '0%' : '12%',
+    '--chat-composer-mix': light ? '0%' : '16%',
     '--chat-composer-base': light ? 'var(--chat-canvas)' : 'transparent',
     '--chat-composer-border-mix': light ? '11%' : '9%'
   })
@@ -218,6 +219,10 @@ export function nativeChatAppearanceStyle(
     if (matching) {
       applyTerminalChatColors(style, { background, foreground, light, font, appMatchesTerminal })
     }
+  }
+  if (!matching && !light) {
+    // leniu: Android Dev's blue user bubble.
+    style['--chat-user-message'] = '#173e77'
   }
   const bodyMix = matching ? 100 : nativeChatContrastMix(appearance.contrast, light)
   style['--chat-foreground-mix'] = `${bodyMix}%`
