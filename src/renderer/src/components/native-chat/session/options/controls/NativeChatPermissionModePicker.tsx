@@ -48,7 +48,7 @@ export function NativeChatPermissionModeName(props: {
     </>
   )
   return props.mode === 'full-access' ? (
-    <span className="flex min-w-0 items-center gap-1.5 text-status-warning">{body}</span>
+    <span className="flex min-w-0 items-center gap-1.5 text-orange-500">{body}</span>
   ) : (
     <span className="flex min-w-0 items-center gap-1.5">{body}</span>
   )

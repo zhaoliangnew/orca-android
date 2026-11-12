@@ -5,6 +5,7 @@ import {
   type SessionOptionDisabledReason,
   type SessionOptionSelectChoice
 } from './native-chat-session-options'
+import { leniuModelName } from './leniu-model-display'
 
 // English pieces for the session option pickers; desktop translates each one, mobile shows them as is.
 export const NATIVE_CHAT_SESSION_OPTION_COPY = {
@@ -155,7 +156,7 @@ export function nativeChatSessionOptionDisabledReason(
 
 // leniu: the pill shows just the model ("Opus 5.5"), without the "Claude " brand or " alias" tag.
 function compactModelLabel(label: string): string {
-  return label.replace(/^Claude /, '').replace(/ alias$/, '')
+  return leniuModelName(label.replace(/^Claude /, '').replace(/ alias$/, ''))
 }
 
 export function nativeChatModelPillLabel(

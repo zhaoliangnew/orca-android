@@ -1,4 +1,4 @@
-/* leniu: the composer bar's 最近/用量/压缩/新会话 and model name at Android Dev's 12px (no chat type step). */
+/* leniu: the composer bar's 最近/用量/压缩/新会话 and model name; 11px in Orca's font reads like Android Dev's 12px (no chat type step fits). */
 .leniu-tool-text {
-  font-size: 12px;
+  font-size: 11px;
 }

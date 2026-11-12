@@ -25,7 +25,13 @@ export type SmartWorkspaceSourceRow =
   | { kind: 'create-branch'; value: string; name: string }
   | { kind: 'github'; value: string; item: GitHubWorkItem }
   | { kind: 'gitlab'; value: string; item: GitLabWorkItem }
-  | { kind: 'branch'; value: string; refName: string; localBranchName: string }
+  | {
+      kind: 'branch'
+      value: string
+      refName: string
+      localBranchName: string
+      refKind?: 'local' | 'remote' | 'tag'
+    }
   | { kind: 'linear'; value: string; issue: LinearIssue }
   | { kind: 'jira'; value: string; issue: JiraIssue }
 
@@ -288,7 +294,8 @@ export function buildSmartWorkspaceSourceRows({
         kind: 'branch' as const,
         value: `branch-${branch.refName}`,
         refName: branch.refName,
-        localBranchName: branch.localBranchName
+        localBranchName: branch.localBranchName,
+        ...(branch.refKind ? { refKind: branch.refKind } : {})
       }))
     )
   }

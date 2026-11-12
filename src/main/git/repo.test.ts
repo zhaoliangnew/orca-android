@@ -101,7 +101,12 @@ describe('searchBaseRefs (widened glob)', () => {
     git(tmpDir, ['commit', '--allow-empty', '-m', 'tag target', '--quiet'])
     git(tmpDir, ['tag', branch])
 
-    const results = await searchBaseRefDetails(tmpDir, '运动记录')
+    const all = await searchBaseRefDetails(tmpDir, '运动记录')
+    // leniu: tags are listed too, apart from branches, under their full ref.
+    expect(all.filter((ref) => ref.refKind === 'tag')).toEqual([
+      { refName: `refs/tags/${branch}`, localBranchName: `tag-${branch}`, refKind: 'tag' }
+    ])
+    const results = all.filter((ref) => ref.refKind !== 'tag')
 
     expect(results).toHaveLength(1)
     expect(results[0]?.refName).toBe(`refs/heads/${branch}`)

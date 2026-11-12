@@ -316,15 +316,7 @@ export function OpenCodeGoIcon({ size = 14 }: { size?: number }): React.JSX.Elem
   )
 }
 
-// leniu: a plain "CC" badge stands in for the Claude logo everywhere AgentIcon/ClaudeIcon render.
-// Drawn as an inner image so "CC" never joins the surrounding label's text.
-const CLAUDE_CC_BADGE = `data:image/svg+xml;utf8,${encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">' +
-    '<rect width="24" height="24" rx="5" fill="#6B7280"/>' +
-    '<text x="12" y="16.5" text-anchor="middle" font-size="11.5" font-weight="700" ' +
-    'font-family="-apple-system, system-ui, sans-serif" fill="#fff">CC</text></svg>'
-)}`
-
+// leniu: Claude shows under the GPT mark everywhere AgentIcon/ClaudeIcon render.
 export function ClaudeIcon({
   size = 14,
   className
@@ -332,18 +324,7 @@ export function ClaudeIcon({
   size?: number
   className?: string
 }): React.JSX.Element {
-  return (
-    <svg
-      className={className}
-      height={size}
-      width={size}
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <image href={CLAUDE_CC_BADGE} width="24" height="24" />
-    </svg>
-  )
+  return <OpenAIIcon size={size} className={className} />
 }
 
 export function DroidIcon({

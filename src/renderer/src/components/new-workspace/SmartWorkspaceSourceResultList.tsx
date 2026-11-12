@@ -9,6 +9,33 @@ import { RowIcon, RowLabel } from './smart-workspace-source-row-content'
 import type { RowEntry } from './smart-workspace-name-field-model'
 import type { WorkItemSourceSearch } from './use-work-item-source-search'
 
+type RefGroup = { heading?: string; rows: RowEntry[] }
+
+/** leniu: branch results split into 本地分支 / 远程分支 / 标签; other sources stay one ungrouped list. */
+function groupRefRows(rows: RowEntry[]): RefGroup[] {
+  const others: RowEntry[] = []
+  const local: RowEntry[] = []
+  const remote: RowEntry[] = []
+  const tags: RowEntry[] = []
+  for (const row of rows) {
+    if (row.kind !== 'branch') {
+      others.push(row)
+    } else if (row.refKind === 'tag') {
+      tags.push(row)
+    } else if (row.refName === row.localBranchName) {
+      local.push(row)
+    } else {
+      remote.push(row)
+    }
+  }
+  return [
+    { rows: others },
+    { heading: '本地分支', rows: local },
+    { heading: '远程分支', rows: remote },
+    { heading: '标签', rows: tags }
+  ].filter((group) => group.rows.length > 0)
+}
+
 export function SmartWorkspaceSourceResultList({
   model,
   onSelect,
@@ -165,36 +192,38 @@ export function SmartWorkspaceSourceResultList({
                 : (emptyHint ?? getSmartWorkspaceEmptyHint(mode))}
           </div>
         ) : searchResultRows.length > 0 ? (
-          <CommandGroup>
-            {searchResultRows.map((row) => (
-              <CommandItem
-                selection="palette"
-                key={row.value}
-                value={row.value}
-                disabled={isLinked?.(row) || isRowDisabled?.(row)}
-                onSelect={() => onSelect(row)}
-                density="workspace"
-              >
-                <RowIcon row={row} />
-                <RowLabel
-                  row={row}
-                  jiraSite={
-                    showJiraSiteContext && row.kind === 'jira'
-                      ? (jiraConnectionStatus?.sites?.find(
-                          (site) => site.id === row.issue.siteId
-                        ) ?? null)
-                      : null
-                  }
-                  showJiraSiteContext={showJiraSiteContext}
-                />
-                {isLinked?.(row) ? (
-                  <span className="ml-auto shrink-0 text-xs text-muted-foreground">
-                    {t('workspace.links.linkedResult', 'Linked')}
-                  </span>
-                ) : null}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          groupRefRows(searchResultRows).map(({ heading, rows }) => (
+            <CommandGroup key={heading ?? 'results'} heading={heading}>
+              {rows.map((row) => (
+                <CommandItem
+                  selection="palette"
+                  key={row.value}
+                  value={row.value}
+                  disabled={isLinked?.(row) || isRowDisabled?.(row)}
+                  onSelect={() => onSelect(row)}
+                  density="workspace"
+                >
+                  <RowIcon row={row} />
+                  <RowLabel
+                    row={row}
+                    jiraSite={
+                      showJiraSiteContext && row.kind === 'jira'
+                        ? (jiraConnectionStatus?.sites?.find(
+                            (site) => site.id === row.issue.siteId
+                          ) ?? null)
+                        : null
+                    }
+                    showJiraSiteContext={showJiraSiteContext}
+                  />
+                  {isLinked?.(row) ? (
+                    <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+                      {t('workspace.links.linkedResult', 'Linked')}
+                    </span>
+                  ) : null}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))
         ) : null}
       </CommandList>
     </>

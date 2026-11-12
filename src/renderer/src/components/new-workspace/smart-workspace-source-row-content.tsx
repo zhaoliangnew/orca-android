@@ -5,7 +5,8 @@ import {
   GitBranch,
   GitBranchPlus,
   GitMerge,
-  GitPullRequest
+  GitPullRequest,
+  Tag
 } from 'lucide-react'
 import { LinearIcon } from '@/components/icons/LinearIcon'
 import { JiraIcon } from '@/components/icons/JiraIcon'
@@ -37,7 +38,11 @@ export function RowIcon({ row }: { row: RowEntry }): React.JSX.Element {
     )
   }
   if (row.kind === 'branch') {
-    return <GitBranch className="size-3.5 shrink-0 text-muted-foreground" />
+    return row.refKind === 'tag' ? (
+      <Tag className="size-3.5 shrink-0 text-muted-foreground" />
+    ) : (
+      <GitBranch className="size-3.5 shrink-0 text-muted-foreground" />
+    )
   }
   if (row.kind === 'jira' || row.kind === 'jira-account') {
     return <JiraIcon className="size-3.5 shrink-0 text-muted-foreground" />
@@ -130,7 +135,11 @@ export function RowLabel({
     )
   }
   if (row.kind === 'branch') {
-    return <span className="min-w-0 truncate font-mono text-2xs">{row.refName}</span>
+    return (
+      <span className="min-w-0 truncate font-mono text-xs">
+        {row.refKind === 'tag' ? row.refName.replace(/^refs\/tags\//, '') : row.refName}
+      </span>
+    )
   }
   if (row.kind === 'jira') {
     const siteLabel = jiraSite

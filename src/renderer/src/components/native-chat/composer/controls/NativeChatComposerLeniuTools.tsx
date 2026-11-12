@@ -121,14 +121,14 @@ export function NativeChatComposerLeniuTools({
       {tools && (
         <>
           <ToolPopover
-            icon={<History className="size-3.5" />}
+            icon={<History className="size-3" />}
             label="最近"
             className="w-64 rounded-xl border-border/60 bg-muted p-4 shadow-xl"
           >
             <NativeChatRecentSettings />
           </ToolPopover>
           <ToolPopover
-            icon={<ChartColumn className="size-3.5" />}
+            icon={<ChartColumn className="size-3" />}
             label="用量"
             // Opening the panel is the user asking for fresh numbers.
             onOpen={() => void refreshRateLimits()}
@@ -167,7 +167,7 @@ export function NativeChatComposerLeniuTools({
             })
           }}
         >
-          <SquarePen className="size-3.5" />
+          <SquarePen className="size-3" />
           <span>新会话</span>
         </button>
       )}

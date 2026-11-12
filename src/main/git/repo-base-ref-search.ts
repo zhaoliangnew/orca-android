@@ -150,10 +150,16 @@ export function parseAndFilterSearchRefDetails(
       seen.add(short)
       return true
     })
-    .map(({ full, short }) => ({
-      refName: short,
-      localBranchName: resolveLocalBranchName(full, short, sortedRemotes)
-    }))
+    .map(({ full, short }) =>
+      // leniu: a tag starts a new branch; its full ref keeps it apart from a same-named branch.
+      full.startsWith('refs/tags/')
+        ? {
+            refName: full,
+            localBranchName: `tag-${full.slice('refs/tags/'.length)}`,
+            refKind: 'tag' as const
+          }
+        : { refName: short, localBranchName: resolveLocalBranchName(full, short, sortedRemotes) }
+    )
     .slice(0, Math.max(0, limit))
 }
 

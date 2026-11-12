@@ -119,4 +119,6 @@ export type BaseRefDefaultResult = {
 export type BaseRefSearchResult = {
   refName: string
   localBranchName: string
+  /** leniu: which list the ref belongs to in the branch picker; absent from older hosts. */
+  refKind?: 'local' | 'remote' | 'tag'
 }

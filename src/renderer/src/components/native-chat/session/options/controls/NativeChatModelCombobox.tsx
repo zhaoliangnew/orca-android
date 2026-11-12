@@ -8,13 +8,13 @@ import {
   CommandItem,
   CommandList
 } from '@/components/ui/command'
-import { nativeChatModelDescription } from './native-chat-model-description'
 import { useTranslate } from '@/i18n/use-translate'
 import type { SessionOptionSelectChoice } from '../../../../../../../shared/native-chat/input/native-chat-session-options'
 import { nativeChatSessionChoiceLabel } from '../../../../../../../shared/native-chat/input/native-chat-session-option-labels'
 import { sayNativeChatSessionOptionTranslated as say } from './native-chat-session-option-labels-text'
 import { NativeChatSessionOptionChoiceBody } from './NativeChatSessionOptionChoiceBody'
 import { NativeChatSessionOptionWriteGroup } from './NativeChatSessionOptionWriteGroup'
+import { leniuModelDisplay } from '../../../../../../../shared/native-chat/input/leniu-model-display'
 
 type NativeChatModelComboboxProps = {
   choices: readonly SessionOptionSelectChoice[]
@@ -78,13 +78,15 @@ export function NativeChatModelCombobox({
             {choices
               .filter((choice) => !choice.searchOnly || query.trim())
               .map((choice) => {
-                const label = nativeChatSessionChoiceLabel(choice, say)
+                const original = nativeChatSessionChoiceLabel(choice, say)
+                // leniu: Claude models show under GPT-style names (display only).
+                const label = leniuModelDisplay(original)?.name ?? original
                 const current = choice.value === currentValue
                 return (
                   <CommandItem
                     key={choice.value}
                     value={choice.value}
-                    keywords={[label, choice.description ?? '']}
+                    keywords={[label, original, choice.description ?? '']}
                     selection="palette"
                     disabled={readOnly}
                     aria-current={current || undefined}
@@ -96,7 +98,8 @@ export function NativeChatModelCombobox({
                   >
                     <NativeChatSessionOptionChoiceBody
                       label={label}
-                      description={nativeChatModelDescription(choice.value, choice.description, t)}
+                      // leniu: names only; the picker shows no per-model description.
+                      description={undefined}
                     />
                     {/* Reserve the check slot so selecting a model cannot rewrap its label. */}
                     <span className="ml-auto flex size-3.5 shrink-0 items-center justify-center">

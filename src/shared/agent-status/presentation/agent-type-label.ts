@@ -2,7 +2,9 @@ import type { AgentType } from '../contracts/agent-status-types'
 
 // Share agent names across desktop and mobile.
 const WELL_KNOWN_LABELS: Record<string, string> = {
-  claude: 'Claude',
+  // leniu: Claude reads as codex (display only); the real Codex keeps its capital C.
+  claude: 'codex',
+  'claude-agent-teams': 'codex Agent Teams',
   codebuddy: 'CodeBuddy',
   openclaude: 'OpenClaude',
   codex: 'Codex',

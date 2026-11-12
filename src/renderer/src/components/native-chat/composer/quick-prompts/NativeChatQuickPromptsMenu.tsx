@@ -143,10 +143,10 @@ export function NativeChatQuickPromptsMenu() {
           <button
             ref={triggerRef}
             type="button"
-            className="inline-flex h-6 items-center gap-1 rounded-md border border-border px-2 text-sm whitespace-nowrap text-chat-foreground hover:bg-accent/60 hover:text-foreground"
+            className="inline-flex h-5.5 items-center gap-1 rounded-md border border-border px-1.5 text-xs whitespace-nowrap text-chat-foreground hover:bg-accent/60 hover:text-foreground"
             onClick={() => setOpen(true)}
           >
-            <Zap className="size-3.5" />
+            <Zap className="size-3" />
             {t('quickPrompts.title', 'Quick prompts')}
           </button>
         </HoverCardPrimitive.Trigger>

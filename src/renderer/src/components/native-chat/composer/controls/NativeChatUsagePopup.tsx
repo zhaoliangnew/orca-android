@@ -50,7 +50,7 @@ export function NativeChatUsagePopup({ agent }: { agent?: string }) {
   const rows = [
     { label: '5 小时', window: limits?.session },
     { label: '每周(所有模型)', window: limits?.weekly },
-    { label: '每周 Fable', window: limits?.fableWeekly },
+    { label: '每周 GPT-6-Astra', window: limits?.fableWeekly },
     { label: '每月', window: limits?.monthly }
   ].filter((row): row is { label: string; window: RateLimitWindow } => Boolean(row.window))
   // Keeps 今天/明天 right while the popup stays open across midnight.
@@ -61,7 +61,7 @@ export function NativeChatUsagePopup({ agent }: { agent?: string }) {
     >
       <div className="flex items-baseline justify-between">
         <span className="text-sm font-semibold text-chat-foreground-strong">
-          {codex ? 'Codex' : 'Claude'} 用量
+          {codex ? 'Codex' : 'codex'} 用量
         </span>
         {limits?.planType ? (
           <span className="text-xs text-chat-foreground-faint">{limits.planType} 套餐</span>

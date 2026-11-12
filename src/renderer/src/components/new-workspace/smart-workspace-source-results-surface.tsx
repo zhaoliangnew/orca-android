@@ -16,8 +16,8 @@ export function renderSmartWorkspaceSourceResults(
       sideOffset={4}
       avoidCollisions={false}
       className="popover-scroll-content flex w-[var(--radix-popover-trigger-width)] flex-col p-0"
-      // Why: results must not cover the create-workspace dialog's submit footer.
-      style={{ maxHeight: 'min(var(--radix-popover-content-available-height,7rem),7rem)' }}
+      // leniu: room for about ten refs; the list closes on a pick, uncovering the dialog's footer.
+      style={{ maxHeight: 'min(var(--radix-popover-content-available-height,20rem),20rem)' }}
       onOpenAutoFocus={(event) => event.preventDefault()}
       onPointerDownOutside={(event) => {
         // Input/mode tabs are anchors outside Radix content; interacting with them must keep results open.
