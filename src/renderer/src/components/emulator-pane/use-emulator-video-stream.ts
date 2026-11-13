@@ -169,7 +169,13 @@ export function useEmulatorVideoStream(
           // configure() can throw synchronously (TypeError on a bad config); the
           // decoder's async error callback won't catch it, so surface via fatal().
           try {
-            decoder.configure({ codec: H264_CODEC, optimizeForLatency: true })
+            decoder.configure({
+              codec: H264_CODEC,
+              optimizeForLatency: true,
+              // leniu: macOS hardware decoding corrupts some Android encoders' streams (black
+              // blocks, smearing); software decoding of a mirror is cheap and clean.
+              hardwareAcceleration: 'prefer-software'
+            })
           } catch (err) {
             fatal(err instanceof Error ? err.message : 'Failed to configure the H.264 decoder.')
             return

@@ -25,6 +25,15 @@ const SCOPE_SELECTOR = '[data-native-chat-composer-scope]'
 // the footer publishes the tools under that scope and the toolbar reads them back.
 const useToolsByScope = create<Record<string, NativeChatLeniuTools>>(() => ({}))
 
+// The composer bar knows the chat's agent; the 当前 row in the same composer reads it back.
+const useAgentByScope = create<Record<string, string>>(() => ({}))
+
+/** The chat agent of the composer this element sits in (for the 当前 row's label). */
+export function useComposerAgent(): [React.RefObject<HTMLSpanElement | null>, string | undefined] {
+  const [ref, scope] = useComposerScope()
+  return [ref, useAgentByScope((all) => (scope ? all[scope] : undefined))]
+}
+
 function useComposerScope(): [React.RefObject<HTMLSpanElement | null>, string | undefined] {
   const ref = useRef<HTMLSpanElement>(null)
   const [scope, setScope] = useState<string>()
@@ -115,6 +124,18 @@ export function NativeChatComposerLeniuTools({
   const refreshRateLimits = useAppStore((s) => s.refreshRateLimits)
   const [ref, scope] = useComposerScope()
   const tools = useToolsByScope((all) => (scope ? all[scope] : undefined))
+  useEffect(() => {
+    if (!scope || !agent) {
+      return
+    }
+    useAgentByScope.setState({ [scope]: agent })
+    return () => {
+      useAgentByScope.setState((all) => {
+        const { [scope]: _removed, ...rest } = all
+        return rest
+      }, true)
+    }
+  }, [scope, agent])
   const { compact, worktreeId } = tools ?? {}
   return (
     <span ref={ref} className="flex shrink-0 items-center">

@@ -42,7 +42,10 @@ export function startScrcpyServerArgs(serial: string, options: ScrcpyServerOptio
     'control=true',
     'cleanup=true',
     'clipboard_autosync=false',
-    'video_codec=h264'
+    'video_codec=h264',
+    // leniu: a keyframe every 2s, so a corrupted picture heals on its own instead of lasting
+    // until the device's next scene change.
+    'video_codec_options=i-frame-interval:int=2'
   ]
   if (options.maxSize !== undefined) {
     params.push(`max_size=${options.maxSize}`)

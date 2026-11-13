@@ -9,6 +9,8 @@ import { jumpToWorktreeFromSidebar } from '@/lib/workspace/activation/worktree-j
 import { selectWorktreeActivityStatuses } from '@/components/sidebar/workspace-card/activity/use-worktree-activity-statuses'
 import { buildRecentSwitchRows, type RecentSwitchRow } from './recent-switch-rows'
 import { NativeChatQuickPromptsMenu } from '../quick-prompts/NativeChatQuickPromptsMenu'
+import { useComposerAgent } from '../controls/NativeChatComposerLeniuTools'
+import { formatAgentTypeLabel } from '../../../../../../shared/agent-status/presentation/agent-type-label'
 
 export const DEFAULT_RECENT_COUNT = 5
 
@@ -39,12 +41,23 @@ const STATUS_CLASS: Partial<Record<WorktreeStatus, string>> = {
   interrupted: 'text-muted-foreground'
 }
 
-function SwitchRowCells({ row, trailing }: { row: RecentSwitchRow; trailing: ReactNode }) {
+function SwitchRowCells({
+  row,
+  trailing,
+  currentLabel
+}: {
+  row: RecentSwitchRow
+  trailing: ReactNode
+  /** leniu: the 当前 row names the chat's agent (Codex, codex) instead. */
+  currentLabel?: string
+}) {
   const t = useTranslate()
   return (
     <>
       <span className={cn('truncate', row.current && 'font-medium text-emerald-500')}>
-        {row.current ? t('recentSwitch.current', 'Current') : formatRecentVisit(row.visitedAt)}
+        {row.current
+          ? (currentLabel ?? t('recentSwitch.current', 'Current'))
+          : formatRecentVisit(row.visitedAt)}
       </span>
       <span className="truncate text-right">{row.group}</span>
       <span className="flex min-w-0 items-baseline gap-1.5">
@@ -68,14 +81,17 @@ const ROW_CLASS = 'h-6 shrink-0 rounded-md px-2 text-left text-xs text-chat-fore
 
 // The current row hosts the 快捷指令 menu, so it is a plain container rather than a button.
 function CurrentRow({ row }: { row: RecentSwitchRow }) {
+  const [agentRef, agent] = useComposerAgent()
   const status = useAppStore(
     (state) =>
       selectWorktreeActivityStatuses(state, [row.worktree.id]).get(row.worktree.id) ?? 'inactive'
   )
   return (
     <div className={cn(ROW_GRID, ROW_CLASS, 'text-foreground')}>
+      <span ref={agentRef} hidden />
       <SwitchRowCells
         row={row}
+        currentLabel={agent ? formatAgentTypeLabel(agent) : undefined}
         trailing={
           <span className="flex items-center justify-end gap-2">
             {/* As Android Dev: the current workspace's state (进行中) before 快捷指令. */}
